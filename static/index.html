@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="theme-color" content="#e63946" />
+  <title>RoadSoS — Emergency Road Safety</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<!-- ── HEADER ──────────────────────────────────────────────────── -->
+<header class="header">
+  <div class="header-left">
+    <div class="logo"><span class="logo-icon">🚨</span><span class="logo-text">RoadSoS</span></div>
+    <span class="tagline">Emergency Road Safety · AI-Powered</span>
+  </div>
+  <div class="header-right">
+    <div id="offlineChip" class="chip chip--offline hidden">📵 Offline</div>
+    <div id="triageBadge" class="triage-badge hidden"></div>
+    <div id="locationChip" class="chip chip--location">📍 Locating…</div>
+    <button id="crashToggleBtn" class="crash-toggle active" onclick="toggleCrashDetection()" title="Auto-crash detection">🚨 Crash Detect ON</button>
+    <button id="sosBtn" class="sos-btn" onclick="triggerSOS()">SOS</button>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!--  MODALS                                                        -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+
+<!-- SOS Modal -->
+<div id="sosModal" class="modal hidden">
+  <div class="modal-card">
+    <div class="modal-header">
+      <span class="modal-icon">🚨</span><h2>Emergency SOS</h2>
+      <button class="modal-close" onclick="closeSOS()">✕</button>
+    </div>
+    <p class="modal-sub">Your location will be shown. Call the appropriate service:</p>
+    <div id="sosNumbers" class="sos-numbers"></div>
+    <div class="modal-actions">
+      <button class="btn btn--secondary" onclick="closeSOS()">Close</button>
+      <button class="btn btn--danger" onclick="shareLocation()">📤 Share Location</button>
+    </div>
+  </div>
+</div>
+
+<!-- 🚨 CRASH DETECTION Modal -->
+<div id="crashModal" class="modal hidden">
+  <div class="modal-card crash-card">
+    <div class="crash-alert-header">
+      <span class="crash-siren">🚨</span>
+      <h2>CRASH DETECTED!</h2>
+      <span class="crash-siren">🚨</span>
+    </div>
+    <p class="crash-sub">Impact detected by your device sensors.<br>Emergency services will be called automatically.</p>
+
+    <div class="countdown-ring-wrap">
+      <svg class="countdown-svg" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="45" fill="none" stroke="#fde8ea" stroke-width="8"/>
+        <circle id="countdownRing" cx="50" cy="50" r="45" fill="none" stroke="#e63946"
+          stroke-width="8" stroke-linecap="round"
+          transform="rotate(-90 50 50)"
+          style="transition:stroke-dashoffset 1s linear;"/>
+      </svg>
+      <div class="countdown-num" id="crashCountdown">30</div>
+    </div>
+
+    <p class="crash-calling">Calling <strong id="crashCallNum">108</strong> in <span id="crashCountdown2">30</span>s…</p>
+
+    <div class="crash-actions">
+      <button class="btn btn--big-safe" onclick="cancelCrash()">✅ I'M OKAY — Cancel</button>
+    </div>
+    <div class="crash-alert-btn-row">
+      <button class="btn btn--danger" onclick="autoCallEmergency()">📞 Call NOW (Don't Wait)</button>
+    </div>
+  </div>
+</div>
+
+<!-- 🩺 FIRST AID Panel -->
+<div id="firstAidPanel" class="side-panel hidden">
+  <div class="side-panel-header">
+    <h2>🩺 First Aid Guide</h2>
+    <button class="modal-close" onclick="closeFirstAid()">✕</button>
+  </div>
+  <div class="side-panel-body">
+    <div id="faListWrap">
+      <p class="fa-intro">Tap a situation for step-by-step instructions:</p>
+      <div id="firstAidList" class="fa-list"></div>
+    </div>
+    <div id="guideDetail" class="guide-detail hidden"></div>
+  </div>
+</div>
+
+<!-- 👨‍👩‍👧 FAMILY ALERT Setup Modal -->
+<div id="familyModal" class="modal hidden">
+  <div class="modal-card">
+    <div class="modal-header">
+      <span class="modal-icon">👨‍👩‍👧</span><h2>Family Emergency Alert</h2>
+      <button class="modal-close" onclick="closeFamilyModal()">✕</button>
+    </div>
+    <p class="modal-sub">Set your emergency contacts. They'll get your live GPS location instantly.</p>
+    <div class="family-inputs" id="familyInputs">
+      <div class="family-contact-row">
+        <input type="text"  placeholder="Contact name"  class="family-name-input" />
+        <input type="tel"   placeholder="Phone number"  class="family-phone-input" />
+      </div>
+    </div>
+    <button class="btn btn--secondary" style="margin-top:8px;font-size:.78rem" onclick="addFamilyContact()">+ Add another contact</button>
+    <div class="modal-actions" style="margin-top:14px">
+      <button class="btn btn--secondary" onclick="closeFamilyModal()">Cancel</button>
+      <button class="btn btn--danger" onclick="saveFamilyContacts()">💾 Save & Alert Now</button>
+    </div>
+  </div>
+</div>
+
+<!-- 🗺 HAZARD REPORT Modal -->
+<div id="hazardModal" class="modal hidden">
+  <div class="modal-card" style="max-width:360px">
+    <div class="modal-header">
+      <span class="modal-icon">⚠️</span><h2>Report Road Hazard</h2>
+      <button class="modal-close" onclick="closeHazardModal()">✕</button>
+    </div>
+    <p class="modal-sub">What hazard did you encounter?</p>
+    <div class="hazard-types">
+      <button class="hz-btn active" data-type="accident"  onclick="selectHazard(this)">💥 Accident</button>
+      <button class="hz-btn" data-type="pothole"   onclick="selectHazard(this)">🕳 Pothole</button>
+      <button class="hz-btn" data-type="flooding"  onclick="selectHazard(this)">🌊 Flooding</button>
+      <button class="hz-btn" data-type="animal"    onclick="selectHazard(this)">🐄 Animal</button>
+      <button class="hz-btn" data-type="debris"    onclick="selectHazard(this)">🪨 Debris</button>
+      <button class="hz-btn" data-type="breakdown" onclick="selectHazard(this)">🔧 Breakdown</button>
+    </div>
+    <div class="modal-actions" style="margin-top:14px">
+      <button class="btn btn--secondary" onclick="closeHazardModal()">Cancel</button>
+      <button class="btn btn--danger" onclick="submitHazard()">📍 Report</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════ -->
+<!--  MAIN LAYOUT                                                   -->
+<!-- ══════════════════════════════════════════════════════════════ -->
+<main class="layout">
+
+  <!-- LEFT PANEL -->
+  <aside class="panel panel--left">
+
+    <!-- What happened -->
+    <div class="card severity-card">
+      <h3 class="card-title">What happened?</h3>
+      <div class="severity-grid">
+        <button class="sev-btn active" onclick="setSeverity(this,'all')"><span>📍</span><span>All Services</span></button>
+        <button class="sev-btn" onclick="setSeverity(this,'accident')"><span>💥</span><span>Accident</span></button>
+        <button class="sev-btn" onclick="setSeverity(this,'breakdown')"><span>🔧</span><span>Breakdown</span></button>
+        <button class="sev-btn" onclick="setSeverity(this,'medical')"><span>🏥</span><span>Medical</span></button>
+      </div>
+    </div>
+
+    <!-- Quick Action Buttons -->
+    <div class="card quick-actions-card">
+      <h3 class="card-title">Quick Actions</h3>
+      <div class="quick-action-grid">
+        <button class="qa-btn qa-red"    onclick="triggerSOS()">🚨 SOS Call</button>
+        <button class="qa-btn qa-blue"   onclick="openFirstAid()">🩺 First Aid</button>
+        <button class="qa-btn qa-orange" onclick="openFamilyModal()">👨‍👩‍👧 Alert Family</button>
+        <button class="qa-btn qa-green"  onclick="simulateCrash()">💥 Test Crash</button>
+      </div>
+    </div>
+
+    <!-- Filter chips -->
+    <div class="card filter-card">
+      <h3 class="card-title">Filter Services</h3>
+      <div class="filter-chips" id="filterChips">
+        <button class="filter-chip active" data-type="hospital"  onclick="toggleFilter(this)">🏥 Hospital</button>
+        <button class="filter-chip active" data-type="police"    onclick="toggleFilter(this)">🚔 Police</button>
+        <button class="filter-chip active" data-type="ambulance" onclick="toggleFilter(this)">🚑 Ambulance</button>
+        <button class="filter-chip active" data-type="towing"    onclick="toggleFilter(this)">🔧 Towing</button>
+        <button class="filter-chip active" data-type="garage"    onclick="toggleFilter(this)">⛽ Fuel/Garage</button>
+        <button class="filter-chip active" data-type="pharmacy"  onclick="toggleFilter(this)">💊 Pharmacy</button>
+      </div>
+      <div class="radius-row">
+        <label>Radius: <span id="radiusLabel">5 km</span></label>
+        <input type="range" id="radiusSlider" min="1" max="20" value="5" oninput="updateRadius(this)" />
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="card results-card" id="resultsCard">
+      <div class="card-title-row">
+        <h3 class="card-title">Nearby Services</h3>
+        <span id="resultCount" class="badge">—</span>
+      </div>
+      <div id="resultsList" class="results-list">
+        <div class="placeholder"><div class="placeholder-icon">📍</div><p>Allow location access to find nearby emergency services</p></div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- MAP -->
+  <section class="map-section">
+    <div id="map"></div>
+    <div class="map-overlay">
+      <button class="locate-btn" onclick="locateMe()" title="Re-center">🎯</button>
+      <button class="locate-btn" onclick="refreshResults()" title="Refresh">🔄</button>
+      <button class="locate-btn" onclick="openHazardReport()" title="Report hazard">⚠️</button>
+    </div>
+    <div id="loadingBar" class="loading-bar hidden"></div>
+
+    <!-- Scene Analysis overlay -->
+    <div id="sceneAnalysisResult" class="scene-result hidden"></div>
+  </section>
+
+  <!-- RIGHT PANEL — CHAT -->
+  <aside class="panel panel--right">
+    <div class="card chat-card">
+      <div class="card-title-row">
+        <h3 class="card-title">🤖 AI Assistant <span id="aiStatus" class="ai-status">● Live</span></h3>
+        <button class="icon-btn" onclick="clearChat()" title="Clear">🗑</button>
+      </div>
+
+      <div id="chatMessages" class="chat-messages">
+        <div class="msg msg--bot">
+          <div class="msg-content">Hi! I'm your emergency road safety assistant powered by Gemini AI 🤖<br><br>Tell me what happened — accident, breakdown, medical emergency — and I'll guide you step by step.</div>
+        </div>
+      </div>
+
+      <div class="chat-input-row">
+        <button id="micBtn" class="mic-btn" onclick="toggleVoice()" title="Voice input">🎤</button>
+        <input id="chatInput" type="text" placeholder="Describe your situation…" onkeydown="if(event.key==='Enter') sendChat()" />
+        <label class="cam-btn" title="Analyze accident scene photo">
+          📸
+          <input type="file" id="sceneImageInput" accept="image/*" capture="environment" onchange="analyzeScene(this)" style="display:none" />
+        </label>
+        <button class="send-btn" onclick="sendChat()">➤</button>
+      </div>
+
+      <!-- Voice indicator -->
+      <div id="voiceIndicator" class="voice-indicator hidden">
+        <div class="voice-wave"><span></span><span></span><span></span><span></span><span></span></div>
+        <span>Listening…</span>
+        <button onclick="stopVoice()">Stop</button>
+      </div>
+
+      <div class="quick-prompts">
+        <button class="qp-btn" onclick="quickPrompt('I was in an accident, what do I do?')">💥 Accident</button>
+        <button class="qp-btn" onclick="quickPrompt('My tyre is flat, help me')">🔧 Flat tyre</button>
+        <button class="qp-btn" onclick="quickPrompt('Someone is injured at the scene')">🏥 Injury</button>
+        <button class="qp-btn" onclick="quickPrompt('My car broke down on the highway')">🛣 Breakdown</button>
+      </div>
+    </div>
+  </aside>
+
+</main>
+
+<!-- Golden Hour Banner -->
+<div id="goldenBanner" class="golden-banner hidden">
+  <span class="golden-icon">⏱</span>
+  <div><strong>Golden Hour Alert</strong><span>For serious injuries, every minute counts. Call 108 NOW.</span></div>
+  <button onclick="document.getElementById('goldenBanner').classList.add('hidden')">✕</button>
+</div>
+
+<!-- Scripts -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/js/crash.js"></script>
+<script src="/js/firstaid.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>

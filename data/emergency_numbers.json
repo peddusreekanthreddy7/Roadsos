@@ -1,0 +1,257 @@
+{
+  "IN": {
+    "country": "India",
+    "flag": "🇮🇳",
+    "emergency": "112",
+    "ambulance": "108",
+    "police": "100",
+    "fire": "101",
+    "road_accident_helpline": "1073",
+    "highway_helpline": "1033",
+    "women_helpline": "181",
+    "tourist_helpline": "1363"
+  },
+  "US": {
+    "country": "United States",
+    "flag": "🇺🇸",
+    "emergency": "911",
+    "ambulance": "911",
+    "police": "911",
+    "fire": "911"
+  },
+  "GB": {
+    "country": "United Kingdom",
+    "flag": "🇬🇧",
+    "emergency": "999",
+    "ambulance": "999",
+    "police": "999",
+    "fire": "999",
+    "non_emergency_police": "101"
+  },
+  "AU": {
+    "country": "Australia",
+    "flag": "🇦🇺",
+    "emergency": "000",
+    "ambulance": "000",
+    "police": "000",
+    "fire": "000",
+    "non_emergency": "131 444"
+  },
+  "DE": {
+    "country": "Germany",
+    "flag": "🇩🇪",
+    "emergency": "112",
+    "ambulance": "112",
+    "police": "110",
+    "fire": "112"
+  },
+  "FR": {
+    "country": "France",
+    "flag": "🇫🇷",
+    "emergency": "112",
+    "ambulance": "15",
+    "police": "17",
+    "fire": "18"
+  },
+  "JP": {
+    "country": "Japan",
+    "flag": "🇯🇵",
+    "emergency": "119",
+    "ambulance": "119",
+    "police": "110",
+    "fire": "119"
+  },
+  "CN": {
+    "country": "China",
+    "flag": "🇨🇳",
+    "emergency": "120",
+    "ambulance": "120",
+    "police": "110",
+    "fire": "119"
+  },
+  "BR": {
+    "country": "Brazil",
+    "flag": "🇧🇷",
+    "emergency": "192",
+    "ambulance": "192",
+    "police": "190",
+    "fire": "193"
+  },
+  "CA": {
+    "country": "Canada",
+    "flag": "🇨🇦",
+    "emergency": "911",
+    "ambulance": "911",
+    "police": "911",
+    "fire": "911"
+  },
+  "ZA": {
+    "country": "South Africa",
+    "flag": "🇿🇦",
+    "emergency": "10111",
+    "ambulance": "10177",
+    "police": "10111",
+    "fire": "10177"
+  },
+  "NG": {
+    "country": "Nigeria",
+    "flag": "🇳🇬",
+    "emergency": "112",
+    "ambulance": "112",
+    "police": "112",
+    "fire": "112"
+  },
+  "PK": {
+    "country": "Pakistan",
+    "flag": "🇵🇰",
+    "emergency": "115",
+    "ambulance": "115",
+    "police": "15",
+    "fire": "16"
+  },
+  "BD": {
+    "country": "Bangladesh",
+    "flag": "🇧🇩",
+    "emergency": "999",
+    "ambulance": "999",
+    "police": "999",
+    "fire": "999"
+  },
+  "SG": {
+    "country": "Singapore",
+    "flag": "🇸🇬",
+    "emergency": "995",
+    "ambulance": "995",
+    "police": "999",
+    "fire": "995"
+  },
+  "MY": {
+    "country": "Malaysia",
+    "flag": "🇲🇾",
+    "emergency": "999",
+    "ambulance": "999",
+    "police": "999",
+    "fire": "994"
+  },
+  "TH": {
+    "country": "Thailand",
+    "flag": "🇹🇭",
+    "emergency": "1669",
+    "ambulance": "1669",
+    "police": "191",
+    "fire": "199"
+  },
+  "ID": {
+    "country": "Indonesia",
+    "flag": "🇮🇩",
+    "emergency": "112",
+    "ambulance": "118",
+    "police": "110",
+    "fire": "113"
+  },
+  "PH": {
+    "country": "Philippines",
+    "flag": "🇵🇭",
+    "emergency": "911",
+    "ambulance": "911",
+    "police": "117",
+    "fire": "117"
+  },
+  "KR": {
+    "country": "South Korea",
+    "flag": "🇰🇷",
+    "emergency": "119",
+    "ambulance": "119",
+    "police": "112",
+    "fire": "119"
+  },
+  "IT": {
+    "country": "Italy",
+    "flag": "🇮🇹",
+    "emergency": "112",
+    "ambulance": "118",
+    "police": "112",
+    "fire": "115"
+  },
+  "ES": {
+    "country": "Spain",
+    "flag": "🇪🇸",
+    "emergency": "112",
+    "ambulance": "112",
+    "police": "091",
+    "fire": "080"
+  },
+  "MX": {
+    "country": "Mexico",
+    "flag": "🇲🇽",
+    "emergency": "911",
+    "ambulance": "911",
+    "police": "911",
+    "fire": "911"
+  },
+  "AR": {
+    "country": "Argentina",
+    "flag": "🇦🇷",
+    "emergency": "911",
+    "ambulance": "107",
+    "police": "911",
+    "fire": "100"
+  },
+  "EG": {
+    "country": "Egypt",
+    "flag": "🇪🇬",
+    "emergency": "123",
+    "ambulance": "123",
+    "police": "122",
+    "fire": "180"
+  },
+  "NL": {
+    "country": "Netherlands",
+    "flag": "🇳🇱",
+    "emergency": "112",
+    "ambulance": "112",
+    "police": "112",
+    "fire": "112"
+  },
+  "RU": {
+    "country": "Russia",
+    "flag": "🇷🇺",
+    "emergency": "112",
+    "ambulance": "103",
+    "police": "102",
+    "fire": "101"
+  },
+  "TR": {
+    "country": "Turkey",
+    "flag": "🇹🇷",
+    "emergency": "112",
+    "ambulance": "112",
+    "police": "155",
+    "fire": "110"
+  },
+  "SA": {
+    "country": "Saudi Arabia",
+    "flag": "🇸🇦",
+    "emergency": "911",
+    "ambulance": "911",
+    "police": "911",
+    "fire": "998"
+  },
+  "AE": {
+    "country": "UAE",
+    "flag": "🇦🇪",
+    "emergency": "999",
+    "ambulance": "998",
+    "police": "999",
+    "fire": "997"
+  },
+  "DEFAULT": {
+    "country": "International",
+    "flag": "🌍",
+    "emergency": "112",
+    "ambulance": "112",
+    "police": "112",
+    "fire": "112",
+    "note": "112 is the international GSM emergency number"
+  }
+}

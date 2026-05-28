@@ -1,0 +1,25 @@
+{
+  "name": "RoadSoS — Emergency Road Safety",
+  "short_name": "RoadSoS",
+  "description": "Find hospitals, police, ambulance and towing services near you instantly during road emergencies",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f6fa",
+  "theme_color": "#e63946",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚨</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["utilities", "navigation"],
+  "shortcuts": [
+    {
+      "name": "SOS Emergency",
+      "url": "/?sos=1",
+      "description": "Trigger emergency SOS"
+    }
+  ]
+}
