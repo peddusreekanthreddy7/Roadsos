@@ -1,6 +1,6 @@
 /* RoadSoS Service Worker — Offline Support */
 
-const CACHE_NAME = 'roadsos-v5';
+const CACHE_NAME = 'roadsos-v6';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

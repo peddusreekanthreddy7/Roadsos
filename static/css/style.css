@@ -937,34 +937,19 @@ body.nav-mode .map-section { box-shadow: inset 0 0 0 4px var(--blue); }
   --glass-bd:    rgba(255,255,255,0.45);
 }
 
-/* App background — animated gradient */
+/* App background — static gradient (no animation, no GPU drift) */
 html, body {
   background: var(--grad-bg);
   background-attachment: fixed;
 }
-body::before {
-  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-  background:
-    radial-gradient(circle at 10% 20%, rgba(230,57,70,.07), transparent 40%),
-    radial-gradient(circle at 90% 80%, rgba(69,123,157,.08), transparent 45%),
-    radial-gradient(circle at 60% 50%, rgba(106,76,147,.05), transparent 50%);
-  animation: bg-drift 24s ease-in-out infinite alternate;
-}
-@keyframes bg-drift {
-  from { transform: translate(0,0) scale(1); }
-  to   { transform: translate(-2%, 1%) scale(1.04); }
-}
-.layout { position: relative; z-index: 1; }
 
-/* Glassy header with depth */
+/* Header — solid translucent (no backdrop blur — too GPU-heavy with the map) */
 .header {
-  background: var(--glass-bg);
-  backdrop-filter: blur(14px) saturate(160%);
-  -webkit-backdrop-filter: blur(14px) saturate(160%);
-  border-bottom: 1px solid var(--glass-bd);
+  background: rgba(255,255,255,0.94);
+  border-bottom: 1px solid rgba(0,0,0,.08);
   box-shadow:
     0 1px 0 rgba(255,255,255,.6) inset,
-    0 8px 24px rgba(0,0,0,.08);
+    0 4px 16px rgba(0,0,0,.06);
 }
 .logo-text {
   background: var(--grad-red);
@@ -973,11 +958,7 @@ body::before {
   color: transparent;
   text-shadow: 0 2px 8px rgba(230,57,70,.25);
 }
-.logo-icon { filter: drop-shadow(0 2px 4px rgba(230,57,70,.4)); animation: logo-bob 3s ease-in-out infinite; }
-@keyframes logo-bob {
-  0%,100% { transform: translateY(0) rotate(-3deg); }
-  50%      { transform: translateY(-2px) rotate(3deg); }
-}
+.logo-icon { filter: drop-shadow(0 2px 4px rgba(230,57,70,.4)); }
 
 /* Header buttons — 3D depth */
 .sos-btn {
@@ -1030,18 +1011,15 @@ body::before {
   cursor: pointer; color: var(--blue);
 }
 
-/* Cards — frosted glass + 3D layered shadow */
+/* Cards — solid white with 3D layered shadow (NO backdrop blur) */
 .card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px) saturate(140%);
-  -webkit-backdrop-filter: blur(10px) saturate(140%);
-  border: 1px solid var(--glass-bd);
+  background: #ffffff;
+  border: 1px solid rgba(0,0,0,.06);
   border-radius: 14px;
   box-shadow: var(--shadow-3d);
-  transition: transform .25s, box-shadow .25s;
+  transition: box-shadow .2s;
 }
 .card:hover {
-  transform: translateY(-2px);
   box-shadow: var(--shadow-3d-hover);
 }
 
@@ -1128,65 +1106,58 @@ body::before {
     inset 0 -4px 8px rgba(0,0,0,.04);
 }
 .locate-btn {
-  background: var(--glass-bg);
-  backdrop-filter: blur(8px);
+  background: #fff;
   border-radius: 12px;
   box-shadow:
     0 1px 0 rgba(255,255,255,.7) inset,
     0 4px 10px rgba(0,0,0,.12),
-    0 8px 20px rgba(0,0,0,.10);
+    0 8px 18px rgba(0,0,0,.08);
   transition: transform .15s;
 }
 .locate-btn:hover { transform: scale(1.08) translateY(-2px); }
 
-/* Result items — slide-in with depth */
+/* Result items — solid white with subtle depth */
 .result-item {
-  background: rgba(255,255,255,.85);
-  backdrop-filter: blur(6px);
+  background: #fff;
   border-radius: 10px;
   margin-bottom: 6px;
   box-shadow: 0 2px 6px rgba(0,0,0,.06);
-  transition: transform .2s, box-shadow .2s;
+  transition: transform .15s, box-shadow .15s;
 }
 .result-item:hover {
-  transform: translateX(3px);
-  box-shadow: 0 4px 14px rgba(0,0,0,.12);
+  transform: translateX(2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.10);
 }
 .result-item.highlighted {
   background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
-  box-shadow: 0 4px 14px rgba(244,162,97,.35);
+  box-shadow: 0 4px 12px rgba(244,162,97,.30);
 }
 
-/* Modals — frosted floating card */
+/* Modals — solid card with strong drop shadow (no backdrop blur) */
 .modal {
   background: rgba(15, 20, 30, 0.55);
-  backdrop-filter: blur(8px);
 }
 .modal-card {
-  background: linear-gradient(180deg, rgba(255,255,255,.96) 0%, rgba(248,250,255,.98) 100%);
-  backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(255,255,255,.8);
+  background: linear-gradient(180deg, #ffffff 0%, #f8faff 100%);
+  border: 1px solid rgba(0,0,0,.05);
   border-radius: 18px;
   box-shadow:
     0 1px 0 rgba(255,255,255,.9) inset,
-    0 30px 60px rgba(0,0,0,.30),
-    0 12px 24px rgba(0,0,0,.20);
-  animation: modal-rise .35s cubic-bezier(.34,1.56,.64,1);
+    0 24px 48px rgba(0,0,0,.28),
+    0 8px 16px rgba(0,0,0,.18);
+  animation: modal-rise .3s cubic-bezier(.34,1.56,.64,1);
 }
 @keyframes modal-rise {
   from { opacity: 0; transform: translateY(20px) scale(.95); }
   to   { opacity: 1; transform: translateY(0)    scale(1); }
 }
 
-/* Crash modal — pulsing red ring */
-.crash-card { animation: modal-rise .35s, crash-pulse 1.4s ease-in-out infinite; }
-@keyframes crash-pulse {
-  0%, 100% { box-shadow:
-    0 30px 60px rgba(230,57,70,.30),
-    0 0 0 0 rgba(230,57,70,.5); }
-  50%      { box-shadow:
-    0 30px 60px rgba(230,57,70,.50),
-    0 0 0 18px rgba(230,57,70,0); }
+/* Crash modal — static red glow (no infinite animation) */
+.crash-card {
+  animation: modal-rise .3s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:
+    0 24px 48px rgba(230,57,70,.35),
+    0 0 0 1px rgba(230,57,70,.15);
 }
 
 /* Chat messages — gradient bubbles */
@@ -1226,10 +1197,9 @@ body::before {
 .intro-glow {
   position: absolute; top: -40%; left: -10%;
   width: 120%; height: 200%;
-  background: radial-gradient(circle, rgba(255,255,255,.3) 0%, transparent 50%);
-  animation: hero-spin 18s linear infinite;
+  background: radial-gradient(circle, rgba(255,255,255,.25) 0%, transparent 50%);
+  pointer-events: none;
 }
-@keyframes hero-spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
 .intro-title {
   position: relative; font-size: 1.9rem; font-weight: 900;
   letter-spacing: -.5px; margin-bottom: 6px;
@@ -1324,18 +1294,13 @@ body::before {
     0 2px 6px rgba(230,57,70,.25);
 }
 
-/* Golden Hour banner — glowing alarm */
+/* Golden Hour banner — static glow (no infinite animation) */
 .golden-banner {
   background: linear-gradient(135deg, #fff8e1 0%, #ffe082 100%);
   border-left: 6px solid #f4a261;
   box-shadow:
-    0 8px 20px rgba(244,162,97,.35),
-    0 0 0 1px rgba(244,162,97,.3) inset;
-  animation: golden-pulse 2s ease-in-out infinite;
-}
-@keyframes golden-pulse {
-  0%,100% { box-shadow: 0 8px 20px rgba(244,162,97,.35), 0 0 0 1px rgba(244,162,97,.3) inset; }
-  50%      { box-shadow: 0 8px 28px rgba(244,162,97,.55), 0 0 0 1px rgba(244,162,97,.5) inset; }
+    0 8px 22px rgba(244,162,97,.45),
+    0 0 0 1px rgba(244,162,97,.35) inset;
 }
 
 /* Toast — floating chip */
