@@ -22,6 +22,7 @@
     <div id="triageBadge" class="triage-badge hidden"></div>
     <div id="locationChip" class="chip chip--location">📍 Locating…</div>
     <button id="navModeBtn" class="nav-mode-btn" onclick="toggleNavMode()" title="Driving mode — highlight blackspots">🧭 Driving Mode</button>
+    <button class="help-btn" onclick="reopenIntro()" title="How RoadSOS works">❔</button>
     <button id="crashToggleBtn" class="crash-toggle active" onclick="toggleCrashDetection()" title="Auto-crash detection">🚨 Crash Detect ON</button>
     <button id="sosBtn" class="sos-btn" onclick="triggerSOS()">SOS</button>
   </div>
@@ -112,6 +113,60 @@
     <div class="modal-actions" style="margin-top:14px">
       <button class="btn btn--secondary" onclick="closeFamilyModal()">Cancel</button>
       <button class="btn btn--danger" onclick="saveFamilyContacts()">💾 Save & Alert Now</button>
+    </div>
+  </div>
+</div>
+
+<!-- 🚀 INTRO / Welcome Tour Modal -->
+<div id="introModal" class="modal hidden">
+  <div class="modal-card intro-card">
+    <div class="intro-hero">
+      <div class="intro-glow"></div>
+      <h1 class="intro-title">🚨 Welcome to <span>RoadSoS</span></h1>
+      <p class="intro-sub">AI-powered emergency road safety — built to eradicate the <em>Golden Hour</em> delay.</p>
+    </div>
+
+    <div class="intro-grid">
+      <div class="intro-tile">
+        <span class="intro-ico">🧠</span>
+        <strong>AI Assistant</strong>
+        <span>Voice or text. Detects severity and triggers protocols automatically.</span>
+      </div>
+      <div class="intro-tile">
+        <span class="intro-ico">📍</span>
+        <strong>Global, Offline</strong>
+        <span>Works in any country. Caches services for dead-zone areas.</span>
+      </div>
+      <div class="intro-tile">
+        <span class="intro-ico">💥</span>
+        <strong>Auto-Crash Detect</strong>
+        <span>Accelerometer triggers 15-second shield + auto-SOS.</span>
+      </div>
+      <div class="intro-tile">
+        <span class="intro-ico">🔦</span>
+        <strong>Night Beacon</strong>
+        <span>Phone becomes a roadside warning flare at night.</span>
+      </div>
+      <div class="intro-tile">
+        <span class="intro-ico">🩹</span>
+        <strong>Paramedic Card</strong>
+        <span>Auto-log of incident time, vitals, first aid — for arriving medics.</span>
+      </div>
+      <div class="intro-tile">
+        <span class="intro-ico">📡</span>
+        <strong>Geo-Fence Alert</strong>
+        <span>Warns nearby drivers within 2 km of any hazard.</span>
+      </div>
+    </div>
+
+    <div class="intro-cats">
+      <div class="intro-cat"><span class="cat-pill cat-A">A</span> Conscious Victim — trapped, breakdown, road rage</div>
+      <div class="intro-cat"><span class="cat-pill cat-B">B</span> Bystander — severe trauma, hazard reporting</div>
+      <div class="intro-cat"><span class="cat-pill cat-C">C</span> Disaster — Hazmat / MCI / Geo-Fence</div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn--danger intro-cta" onclick="closeIntro()">🚀 Get Started</button>
     </div>
   </div>
 </div>
@@ -294,6 +349,7 @@
         <button class="qa-btn qa-orange" onclick="openFamilyModal()">👨‍👩‍👧 Alert Family</button>
         <button class="qa-btn qa-purple" onclick="openHandoffCard()">🩹 Handoff Card</button>
         <button class="qa-btn qa-night"  onclick="activateNightBeacon()">🔦 Night Beacon</button>
+        <button class="qa-btn qa-sms"    onclick="fireSmsBridge()">📱 SMS Bridge</button>
         <button class="qa-btn qa-green"  onclick="simulateCrash()">💥 Test Crash</button>
       </div>
     </div>

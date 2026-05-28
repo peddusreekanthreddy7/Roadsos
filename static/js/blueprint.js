@@ -390,6 +390,58 @@ function switchScenarioTab(cat) {
 }
 
 /* ════════════════════════════════════════════════════════════════
+   SMS-BRIDGE (Blueprint §6.A — works when mobile data is dead)
+   Builds a compressed encrypted-style payload and fires sms: URI
+   ════════════════════════════════════════════════════════════════ */
+function buildSosPayload() {
+  const lat = (window.currentLat ?? 0).toFixed(5);
+  const lon = (window.currentLon ?? 0).toFixed(5);
+  const triage = document.getElementById('triageBadge')?.textContent?.trim() || 'UNKNOWN';
+  const cs = handoffLog.consciousState || 'Unknown';
+  const country = window.locationInfo?.location?.country_code || 'IN';
+  return `[SOS][CC:${country}][Lat:${lat}][Lon:${lon}][Triage:${triage}][CS:${cs}][T:${Date.now()}]`;
+}
+
+function fireSmsBridge() {
+  const family = (typeof loadFamilyContacts === 'function' ? loadFamilyContacts() : []) || [];
+  const payload = buildSosPayload();
+  const body = encodeURIComponent(
+    `🚨 RoadSOS Emergency\n${payload}\n` +
+    `Google Maps: https://maps.google.com/?q=${window.currentLat},${window.currentLon}\n` +
+    `Sent via SMS-Bridge (no data needed).`
+  );
+
+  if (!family.length) {
+    // Open SMS app with empty recipient so user can pick
+    window.location.href = `sms:?body=${body}`;
+    showToast?.('📱 SMS bridge ready — pick a recipient');
+  } else {
+    const numbers = family.map(c => c.phone.replace(/\D/g, '')).join(',');
+    window.location.href = `sms:${numbers}?body=${body}`;
+    showToast?.(`📱 SMS-Bridge fired to ${family.length} contact(s)`);
+  }
+  logHandoffEvent(`SMS-Bridge dispatched: ${payload}`);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   INTRO TOUR — first-visit guide that maps app to blueprint
+   ════════════════════════════════════════════════════════════════ */
+function maybeShowIntro() {
+  if (localStorage.getItem('roadsos_intro_seen')) return;
+  setTimeout(showIntro, 800);
+}
+function showIntro() {
+  document.getElementById('introModal')?.classList.remove('hidden');
+}
+function closeIntro() {
+  document.getElementById('introModal')?.classList.add('hidden');
+  localStorage.setItem('roadsos_intro_seen', '1');
+}
+function reopenIntro() {
+  document.getElementById('introModal')?.classList.remove('hidden');
+}
+
+/* ════════════════════════════════════════════════════════════════
    3. HAZMAT / EV FIRE PROTOCOL  +  4. MCI MODE
    ════════════════════════════════════════════════════════════════ */
 function checkProtocolOverrides(text) {
@@ -571,6 +623,7 @@ function clearBlackspots() {
    ════════════════════════════════════════════════════════════════ */
 window.addEventListener('DOMContentLoaded', () => {
   restoreHandoff();
+  maybeShowIntro();
   // Start geofence polling once location is known
   const check = setInterval(() => {
     if (window.currentLat && window.currentLon) {
