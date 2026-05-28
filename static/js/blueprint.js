@@ -209,14 +209,195 @@ function resetHandoff() {
 }
 
 /* ════════════════════════════════════════════════════════════════
+   SCENARIO ENGINE — three blueprint categories
+   ════════════════════════════════════════════════════════════════ */
+
+const SCENARIOS = {
+  // ── Category A: Conscious Victim Operations ──
+  trapped: {
+    cat: 'A', title: 'Trapped Victim', icon: '🚪',
+    keywords: /\b(trapped|jammed|stuck|pinned|can.?t\s+get\s+out|door\s+won.?t\s+open|crushed)\b/i,
+    filters: ['ambulance', 'police'],  // fire rescue is not a separate filter type, ambulance/police nearest
+    aiPrompt: "I'm trapped in my car after a crash. Doors are jammed. What do I do?",
+    voiceGuide: [
+      "Stay calm. Help is on the way.",
+      "Turn off the engine if you can reach it.",
+      "Roll down a window or break it with the headrest if you can.",
+      "Cover your nose if you smell fuel.",
+      "Do not move if you have neck or back pain.",
+    ],
+    callPriority: 'fire', // calls fire/heavy rescue
+  },
+  breakdown: {
+    cat: 'A', title: 'Remote Breakdown', icon: '🔧',
+    keywords: /\b(flat\s+tire|flat\s+tyre|blowout|puncture|engine\s+(failure|died|won.?t\s+start)|transmission|breakdown|broke\s+down|stranded)\b/i,
+    filters: ['towing', 'garage'],
+    aiPrompt: "My car broke down on a remote road. What do I do?",
+    voiceGuide: [
+      "Pull off the road as far as you safely can.",
+      "Turn on your hazard lights immediately.",
+      "Place reflective triangles 50 meters behind your vehicle.",
+      "Stay inside the vehicle if traffic is heavy.",
+      "Keep your phone charged and visible.",
+    ],
+    callPriority: 'tow',
+  },
+  roadrage: {
+    cat: 'A', title: 'Fender-Bender / Road Rage', icon: '👊',
+    keywords: /\b(road\s+rage|fender.?bender|altercation|hit\s+(me|my\s+car)|threaten|aggressive\s+driver|fight|arguing|hostile)\b/i,
+    filters: ['police'],
+    aiPrompt: "I'm in a minor accident and the other driver is being aggressive. What do I do?",
+    voiceGuide: [
+      "Lock your doors. Stay inside the vehicle.",
+      "Do not engage with the aggressive driver.",
+      "Photograph the scene and the other vehicle's plate.",
+      "Drive to the nearest police station if you feel unsafe.",
+      "Police are being dispatched to your location.",
+    ],
+    callPriority: 'police',
+  },
+
+  // ── Category B: Bystander Operations ──
+  trauma: {
+    cat: 'B', title: 'Severe Trauma (Golden Hour)', icon: '🩸',
+    keywords: /\b(unconscious|not\s+breathing|severe\s+bleeding|motorcyclist.*down|head\s+injury|helmet|critical|life.?threatening)\b/i,
+    filters: ['hospital', 'ambulance'],
+    aiPrompt: "There is an unconscious, bleeding motorcyclist at the accident scene. What do I do?",
+    voiceGuide: [
+      "Do not remove the helmet. Removing it could cause spinal injury.",
+      "Find a clean cloth and apply firm direct pressure to the wound.",
+      "Do not move the person unless they are in immediate danger.",
+      "Check for breathing every thirty seconds.",
+      "Stay with them. Help is coming.",
+    ],
+    callPriority: 'ambulance',
+    activateBeacon: true,        // also flash the night beacon
+    triggerGoldenHour: true,
+  },
+  samaritan: {
+    cat: 'B', title: 'Good Samaritan Report', icon: '⚠️',
+    keywords: /\b(pothole|debris|disabled\s+(truck|vehicle)|fallen\s+tree|oil\s+spill|broken\s+signal|blocked\s+(road|lane))\b/i,
+    filters: [],
+    aiPrompt: "I see a road hazard ahead. How do I report it?",
+    voiceGuide: [
+      "Do not stop in traffic to take photos.",
+      "Pull over safely first if possible.",
+      "Report the hazard using the in-app hazard button.",
+      "Continue driving carefully and warn approaching vehicles.",
+    ],
+    openHazardReport: true,
+  },
+
+  // ── Category C: Advanced Disaster Innovation Layer ──
+  hazmat: {
+    cat: 'C', title: 'Hazmat / EV Fire', icon: '☣️',
+    keywords: null, // set below
+    filters: ['hospital'],
+    aiPrompt: "There is a tanker truck or EV fire at the scene.",
+    triggerHazmat: true,
+  },
+  mci: {
+    cat: 'C', title: 'Mass Casualty', icon: '🚌',
+    keywords: null, // set below
+    filters: ['hospital', 'ambulance'],
+    aiPrompt: "There is a bus rollover or major pile-up with multiple victims.",
+    triggerMci: true,
+  },
+};
+
+// Backfill regex after object literal
+const HAZMAT_KEYWORDS = /\b(tanker|hazmat|chemical|fuel\s+spill|gas\s+leak|ev\s+fire|electric\s+vehicle.*fire|lithium|battery\s+fire|thermal\s+runaway|explosion|leaking\s+(petrol|diesel|gas|fuel))\b/i;
+const MCI_KEYWORDS    = /\b(bus\s+(rollover|crash|overturn)|pile.?up|pileup|multiple\s+(vehicles|cars|victims|casualties)|mass\s+casualty|many\s+injured|train\s+(crash|derailment))\b/i;
+SCENARIOS.hazmat.keywords = HAZMAT_KEYWORDS;
+SCENARIOS.mci.keywords    = MCI_KEYWORDS;
+
+function runScenario(key) {
+  const s = SCENARIOS[key];
+  if (!s) return;
+
+  logHandoffEvent(`Scenario activated: ${s.title} (Category ${s.cat})`);
+
+  // 1) Filter the map/services to relevant categories
+  if (s.filters?.length && window.activeFilters && window.setSeverityProgrammatic) {
+    window.setSeverityProgrammatic(s.filters);
+  } else if (s.filters?.length && typeof activeFilters !== 'undefined') {
+    activeFilters = new Set(s.filters);
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+      chip.classList.toggle('active', activeFilters.has(chip.dataset.type));
+    });
+    if (typeof cachedResults !== 'undefined' && cachedResults) {
+      renderResults(cachedResults); plotMarkers(cachedResults.flat || []);
+    } else if (typeof fetchNearby === 'function') {
+      fetchNearby();
+    }
+  }
+
+  // 2) Inject the AI prompt
+  if (s.aiPrompt && typeof sendChat === 'function') {
+    const input = document.getElementById('chatInput');
+    if (input) { input.value = s.aiPrompt; sendChat(); }
+  }
+
+  // 3) Read out the voice guide
+  if (s.voiceGuide?.length) speakStepwise(s.voiceGuide);
+
+  // 4) Special triggers
+  if (s.activateBeacon)   activateNightBeacon();
+  if (s.triggerGoldenHour) document.getElementById('goldenBanner')?.classList.remove('hidden');
+  if (s.triggerHazmat)    showHazmatOverride();
+  if (s.triggerMci)       showMciOverride();
+  if (s.openHazardReport) openHazardReport?.();
+
+  // 5) Highlight visual category badge
+  const tag = document.getElementById('scenarioTag');
+  if (tag) {
+    tag.textContent = `${s.icon} ${s.title} · Category ${s.cat}`;
+    tag.className = `scenario-tag cat-${s.cat}`;
+    tag.classList.remove('hidden');
+    clearTimeout(tag._timer);
+    tag._timer = setTimeout(() => tag.classList.add('hidden'), 15000);
+  }
+
+  showToast?.(`${s.icon} ${s.title} mode active`);
+}
+
+function speakStepwise(lines) {
+  if (!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  lines.forEach((line, idx) => {
+    const u = new SpeechSynthesisUtterance(line);
+    u.rate = 0.95; u.pitch = 1.0; u.volume = 1.0;
+    setTimeout(() => speechSynthesis.speak(u), idx * 50);
+  });
+}
+
+function detectScenario(text) {
+  // Check Category-C first (most severe) then B then A
+  const order = ['hazmat', 'mci', 'trauma', 'trapped', 'roadrage', 'breakdown', 'samaritan'];
+  for (const key of order) {
+    if (SCENARIOS[key].keywords.test(text)) return key;
+  }
+  return null;
+}
+
+function switchScenarioTab(cat) {
+  document.querySelectorAll('.sc-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.cat === cat);
+  });
+  document.querySelectorAll('.sc-panel').forEach(p => {
+    p.classList.toggle('active', p.dataset.cat === cat);
+  });
+}
+
+/* ════════════════════════════════════════════════════════════════
    3. HAZMAT / EV FIRE PROTOCOL  +  4. MCI MODE
    ════════════════════════════════════════════════════════════════ */
-const HAZMAT_KEYWORDS = /\b(tanker|hazmat|chemical|fuel\s+spill|gas\s+leak|ev\s+fire|electric\s+vehicle.*fire|lithium|battery\s+fire|thermal\s+runaway|explosion|leaking\s+(petrol|diesel|gas|fuel))\b/i;
-const MCI_KEYWORDS = /\b(bus\s+(rollover|crash|overturn)|pile.?up|pileup|multiple\s+(vehicles|cars|victims|casualties)|mass\s+casualty|many\s+injured|train\s+(crash|derailment))\b/i;
-
 function checkProtocolOverrides(text) {
-  if (HAZMAT_KEYWORDS.test(text)) { showHazmatOverride(); return 'hazmat'; }
-  if (MCI_KEYWORDS.test(text))    { showMciOverride();    return 'mci'; }
+  const key = detectScenario(text);
+  if (key) {
+    runScenario(key);
+    return key;
+  }
   return null;
 }
 

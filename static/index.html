@@ -231,6 +231,60 @@
       </div>
     </div>
 
+    <!-- Emergency Scenario (Three Blueprint Categories) -->
+    <div class="card scenario-card">
+      <h3 class="card-title">Emergency Scenario</h3>
+      <div class="scenario-tabs">
+        <button class="sc-tab active" data-cat="A" onclick="switchScenarioTab('A')">A · Victim</button>
+        <button class="sc-tab"        data-cat="B" onclick="switchScenarioTab('B')">B · Bystander</button>
+        <button class="sc-tab"        data-cat="C" onclick="switchScenarioTab('C')">C · Disaster</button>
+      </div>
+
+      <!-- Category A: Conscious Victim Operations -->
+      <div class="sc-panel active" data-cat="A">
+        <div class="sc-desc">User is inside the vehicle:</div>
+        <button class="sc-btn" onclick="runScenario('trapped')">
+          <span class="sc-ico">🚪</span>
+          <div><strong>Trapped Victim</strong><span>Doors jammed → Fire rescue</span></div>
+        </button>
+        <button class="sc-btn" onclick="runScenario('breakdown')">
+          <span class="sc-ico">🔧</span>
+          <div><strong>Remote Breakdown</strong><span>Flat tyre, engine failure → Towing</span></div>
+        </button>
+        <button class="sc-btn" onclick="runScenario('roadrage')">
+          <span class="sc-ico">👊</span>
+          <div><strong>Fender-Bender / Road Rage</strong><span>Altercation → Police</span></div>
+        </button>
+      </div>
+
+      <!-- Category B: Bystander Operations -->
+      <div class="sc-panel" data-cat="B">
+        <div class="sc-desc">User is a witness to an incident:</div>
+        <button class="sc-btn" onclick="runScenario('trauma')">
+          <span class="sc-ico">🩸</span>
+          <div><strong>Severe Trauma</strong><span>Unconscious victim → Golden Hour</span></div>
+        </button>
+        <button class="sc-btn" onclick="runScenario('samaritan')">
+          <span class="sc-ico">⚠️</span>
+          <div><strong>Good Samaritan</strong><span>Pothole, debris → Report hazard</span></div>
+        </button>
+      </div>
+
+      <!-- Category C: Advanced Disaster Innovation Layer -->
+      <div class="sc-panel" data-cat="C">
+        <div class="sc-desc">Special-protocol disasters:</div>
+        <button class="sc-btn" onclick="runScenario('hazmat')">
+          <span class="sc-ico">☣️</span>
+          <div><strong>Hazmat / EV Fire</strong><span>Tanker, lithium battery → Upwind 100m</span></div>
+        </button>
+        <button class="sc-btn" onclick="runScenario('mci')">
+          <span class="sc-ico">🚌</span>
+          <div><strong>Mass Casualty</strong><span>Bus rollover, pile-up → Field triage</span></div>
+        </button>
+        <div class="sc-info">📡 Geo-Fenced Hazard Broadcast — active automatically when hazards are reported within 2km.</div>
+      </div>
+    </div>
+
     <!-- Quick Action Buttons -->
     <div class="card quick-actions-card">
       <h3 class="card-title">Quick Actions</h3>
@@ -339,6 +393,9 @@
 
 <!-- 📡 Geo-Fenced Proximity Alert Banner -->
 <div id="proximityAlert" class="proximity-alert hidden"></div>
+
+<!-- Active scenario tag -->
+<div id="scenarioTag" class="scenario-tag hidden"></div>
 
 <!-- Scripts -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

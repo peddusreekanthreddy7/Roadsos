@@ -847,3 +847,70 @@ body.nav-mode .map-section { box-shadow: inset 0 0 0 4px var(--blue); }
   from { opacity: 0; transform: translate(-50%, -20px); }
   to   { opacity: 1; transform: translate(-50%, 0); }
 }
+
+/* ── EMERGENCY SCENARIO (3 categories from blueprint) ──────────── */
+.scenario-card { padding-bottom: 6px; }
+.scenario-tabs {
+  display: grid; grid-template-columns: 1fr 1fr 1fr;
+  gap: 4px; margin-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+}
+.sc-tab {
+  background: none; border: none; cursor: pointer;
+  padding: 6px 4px; font-size: .72rem; font-weight: 700;
+  color: var(--text-sub); border-bottom: 2px solid transparent;
+  transition: all .15s;
+}
+.sc-tab:hover { color: var(--text); }
+.sc-tab.active {
+  color: var(--red); border-bottom-color: var(--red);
+}
+.sc-panel { display: none; flex-direction: column; gap: 6px; }
+.sc-panel.active { display: flex; }
+.sc-desc {
+  font-size: .72rem; color: var(--text-sub);
+  font-style: italic; margin-bottom: 4px;
+}
+.sc-btn {
+  display: flex; align-items: center; gap: 10px;
+  background: #fff; border: 1px solid var(--border);
+  border-left: 4px solid var(--red);
+  border-radius: 8px; padding: 8px 10px;
+  text-align: left; cursor: pointer;
+  transition: all .15s;
+}
+.sc-btn:hover {
+  background: #fde8ea; transform: translateX(2px);
+}
+.sc-panel[data-cat="A"] .sc-btn { border-left-color: var(--red); }
+.sc-panel[data-cat="B"] .sc-btn { border-left-color: var(--blue); }
+.sc-panel[data-cat="C"] .sc-btn { border-left-color: #6a4c93; }
+.sc-ico { font-size: 1.4rem; flex-shrink: 0; }
+.sc-btn div { display: flex; flex-direction: column; gap: 1px; }
+.sc-btn strong { font-size: .82rem; color: var(--text); }
+.sc-btn span { font-size: .7rem; color: var(--text-sub); }
+.sc-info {
+  font-size: .7rem; color: var(--text-sub);
+  background: #f5f6fa; border-radius: 6px;
+  padding: 6px 8px; margin-top: 4px;
+}
+
+/* ── Active scenario tag (floats above header) ─────────────────── */
+.scenario-tag {
+  position: fixed;
+  top: calc(var(--header-h) + 6px);
+  right: 12px; z-index: 9998;
+  background: #fff; border-radius: 20px;
+  padding: 5px 12px; font-size: .75rem; font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0,0,0,.15);
+  animation: tag-pop .35s ease-out;
+}
+.scenario-tag.hidden { display: none; }
+.scenario-tag.cat-A { border: 2px solid var(--red);    color: var(--red); }
+.scenario-tag.cat-B { border: 2px solid var(--blue);   color: var(--blue); }
+.scenario-tag.cat-C { border: 2px solid #6a4c93;       color: #6a4c93; }
+@keyframes tag-pop {
+  from { opacity: 0; transform: scale(.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
