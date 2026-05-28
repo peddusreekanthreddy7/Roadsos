@@ -117,11 +117,14 @@ async function fetchLocationInfo(lat, lon) {
 }
 
 // ── Fetch Nearby ──────────────────────────────────────────────────
+// Always fetch ALL service types so client-side filter toggles are instant
+const ALL_SERVICE_TYPES = 'hospital,police,ambulance,towing,garage,pharmacy';
+
 async function fetchNearby() {
   if (!currentLat || !currentLon) return;
   showLoading(true);
   clearServiceMarkers();
-  const types = [...activeFilters].join(',');
+  const types = ALL_SERVICE_TYPES;
   try {
     let data;
     if (navigator.onLine) {
@@ -130,7 +133,7 @@ async function fetchNearby() {
       );
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       data = await res.json();
-      try { localStorage.setItem('roadsos_cache', JSON.stringify({lat:currentLat,lon:currentLon,data,ts:Date.now()})); } catch(e){}
+      try { localStorage.setItem('roadsos_cache_v2', JSON.stringify({lat:currentLat,lon:currentLon,data,ts:Date.now()})); } catch(e){}
     } else {
       data = loadCachedResults();
     }
@@ -144,7 +147,7 @@ async function fetchNearby() {
 
 function loadCachedResults() {
   try {
-    const raw = localStorage.getItem('roadsos_cache');
+    const raw = localStorage.getItem('roadsos_cache_v2');
     if (!raw) return null;
     const {data,ts} = JSON.parse(raw);
     if (Date.now()-ts < 30*60*1000) return data;
@@ -547,29 +550,43 @@ async function shareLocation() {
 
 // ── Filters & Controls ────────────────────────────────────────────
 function toggleFilter(btn) {
-  const type=btn.dataset.type;
-  activeFilters.has(type)?activeFilters.delete(type):activeFilters.add(type);
-  btn.classList.toggle('active',activeFilters.has(type));
-  if(cachedResults){renderResults(cachedResults);plotMarkers(cachedResults.flat||[]);}
+  const type = btn.dataset.type;
+  if (activeFilters.has(type)) activeFilters.delete(type);
+  else activeFilters.add(type);
+  btn.classList.toggle('active', activeFilters.has(type));
+  // Cache always holds all types; just re-render the filtered view
+  if (cachedResults) {
+    renderResults(cachedResults);
+    plotMarkers(cachedResults.flat || []);
+  } else {
+    fetchNearby();
+  }
 }
 
-function setSeverity(btn,type) {
-  document.querySelectorAll('.sev-btn').forEach(b=>b.classList.remove('active'));
+function setSeverity(btn, type) {
+  document.querySelectorAll('.sev-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  activeFilters=new Set(SEVERITY_FILTERS[type]||SEVERITY_FILTERS.all);
-  document.querySelectorAll('.filter-chip').forEach(chip=>{
-    chip.classList.toggle('active',activeFilters.has(chip.dataset.type));
+  activeFilters = new Set(SEVERITY_FILTERS[type] || SEVERITY_FILTERS.all);
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.classList.toggle('active', activeFilters.has(chip.dataset.type));
   });
-  if(type==='accident') document.getElementById('goldenBanner').classList.remove('hidden');
-  cachedResults?renderResults(cachedResults)&&plotMarkers(cachedResults.flat||[]):fetchNearby();
-  if(cachedResults){renderResults(cachedResults);plotMarkers(cachedResults.flat||[]);}
-  else fetchNearby();
+  if (type === 'accident') document.getElementById('goldenBanner').classList.remove('hidden');
+  if (cachedResults) {
+    renderResults(cachedResults);
+    plotMarkers(cachedResults.flat || []);
+  } else {
+    fetchNearby();
+  }
 }
 
+let radiusTimer = null;
 function updateRadius(el) {
-  currentRadius=parseInt(el.value)*1000;
-  document.getElementById('radiusLabel').textContent=`${el.value} km`;
-  if(userCircle){userCircle.setRadius(currentRadius);map.fitBounds(userCircle.getBounds());}
+  currentRadius = parseInt(el.value) * 1000;
+  document.getElementById('radiusLabel').textContent = `${el.value} km`;
+  if (userCircle) { userCircle.setRadius(currentRadius); map.fitBounds(userCircle.getBounds()); }
+  // Debounce re-fetch so slider doesn't spam OSM
+  clearTimeout(radiusTimer);
+  radiusTimer = setTimeout(() => fetchNearby(), 400);
 }
 
 function refreshResults() { fetchNearby(); }

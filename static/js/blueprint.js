@@ -317,14 +317,14 @@ function runScenario(key) {
 
   logHandoffEvent(`Scenario activated: ${s.title} (Category ${s.cat})`);
 
-  // 1) Filter the map/services to relevant categories
-  if (s.filters?.length && window.activeFilters && window.setSeverityProgrammatic) {
-    window.setSeverityProgrammatic(s.filters);
-  } else if (s.filters?.length && typeof activeFilters !== 'undefined') {
+  // 1) Filter the map/services to relevant categories.
+  // Cache always holds ALL service types, so we just re-render with new filter.
+  if (s.filters?.length && typeof activeFilters !== 'undefined') {
     activeFilters = new Set(s.filters);
     document.querySelectorAll('.filter-chip').forEach(chip => {
       chip.classList.toggle('active', activeFilters.has(chip.dataset.type));
     });
+    document.querySelectorAll('.sev-btn').forEach(b => b.classList.remove('active'));
     if (typeof cachedResults !== 'undefined' && cachedResults) {
       renderResults(cachedResults); plotMarkers(cachedResults.flat || []);
     } else if (typeof fetchNearby === 'function') {
