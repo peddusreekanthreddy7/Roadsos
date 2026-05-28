@@ -37,6 +37,7 @@ function startMotionListening() {
 
 function handleMotion(event) {
   if (!crashEnabled || crashCooldown) return;
+  if (document.hidden) return; // skip hidden tabs
 
   const acc = event.accelerationIncludingGravity;
   if (!acc) return;

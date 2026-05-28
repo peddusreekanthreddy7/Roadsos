@@ -548,10 +548,26 @@ function speakWarning(text) {
 }
 
 function startGeofencePolling() {
+  stopGeofencePolling();
+  if (document.hidden) return; // don't poll background tabs
   pollGeofenceHazards();
-  clearInterval(geofenceTimer);
   geofenceTimer = setInterval(pollGeofenceHazards, 30000); // every 30s
 }
+function stopGeofencePolling() {
+  if (geofenceTimer) { clearInterval(geofenceTimer); geofenceTimer = null; }
+}
+
+// Pause/resume polling when tab visibility changes — prevents pile-up of
+// timers when multiple RoadSOS tabs are open.
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    stopGeofencePolling();
+    // Also stop any expensive UI animations
+    if (typeof beaconActive !== 'undefined' && beaconActive) deactivateNightBeacon();
+  } else if (window.currentLat) {
+    startGeofencePolling();
+  }
+});
 
 /* ════════════════════════════════════════════════════════════════
    6. TROJAN HORSE — NAVIGATION MODE
