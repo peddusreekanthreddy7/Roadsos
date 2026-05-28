@@ -64,6 +64,9 @@ function locateMe() {
 function onLocationSuccess(pos) {
   currentLat = pos.coords.latitude;
   currentLon = pos.coords.longitude;
+  window.currentLat = currentLat;
+  window.currentLon = currentLon;
+  window.map = map;
   map.setView([currentLat, currentLon], 14);
 
   if (userMarker) map.removeLayer(userMarker);
@@ -109,7 +112,7 @@ async function fetchLocationInfo(lat, lon) {
     // Update crash modal with country number
     const ambNum = window.locationInfo?.emergency_numbers?.ambulance || '108';
     document.getElementById('crashCallNum').textContent = ambNum;
-    document.getElementById('crashCountdown2').textContent = '30';
+    document.getElementById('crashCountdown2').textContent = '15';
   } catch(e) { console.warn(e); }
 }
 
@@ -443,12 +446,21 @@ async function sendChat() {
 
   appendMsg('user', msg);
   chatHistory.push({role:'user',content:msg});
+  logHandoffEvent?.(`User said: "${msg.substring(0,80)}"`);
 
   const typing = appendMsg('bot','',true);
 
   // Auto-detect injury keywords → golden hour
   if (/injur|accident|crash|blood|unconscious|hurt|dead/i.test(msg)) {
     document.getElementById('goldenBanner').classList.remove('hidden');
+  }
+
+  // Blueprint: Hazmat / MCI protocol detection
+  const protocol = checkProtocolOverrides?.(msg);
+  if (protocol === 'hazmat') {
+    logHandoffEvent?.('User reported hazmat / fuel / EV-fire scenario');
+  } else if (protocol === 'mci') {
+    logHandoffEvent?.('User reported mass-casualty scenario');
   }
 
   try {

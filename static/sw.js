@@ -1,11 +1,14 @@
 /* RoadSoS Service Worker — Offline Support */
 
-const CACHE_NAME = 'roadsos-v1';
+const CACHE_NAME = 'roadsos-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/css/style.css',
   '/js/app.js',
+  '/js/crash.js',
+  '/js/firstaid.js',
+  '/js/blueprint.js',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
 ];

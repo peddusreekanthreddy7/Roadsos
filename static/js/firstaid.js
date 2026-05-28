@@ -138,6 +138,9 @@ function showGuide(key) {
   const guide = FIRST_AID_GUIDES[key];
   if (!guide) return;
 
+  // Blueprint: Paramedic Handoff Card — log every first-aid opened
+  logFirstAid?.(`Followed guide: ${guide.title}`);
+
   // Hide the list
   const listWrap = document.getElementById('faListWrap');
   if (listWrap) listWrap.classList.add('hidden');

@@ -1,7 +1,7 @@
 /* ── RoadSoS Crash Detection Module ─────────────────────────────── */
 
 const CRASH_G_THRESHOLD = 25;   // ~2.5G in m/s²
-const COUNTDOWN_SEC      = 30;
+const COUNTDOWN_SEC      = 15;   // Blueprint: 15-Second Shield
 const COOLDOWN_MS        = 15000; // 15s cooldown after detection
 
 let crashCooldown    = false;
@@ -88,8 +88,10 @@ function showCrashModal() {
 
 function updateCountdown() {
   const el = document.getElementById('crashCountdown');
+  const el2 = document.getElementById('crashCountdown2');
   const ring = document.getElementById('countdownRing');
   if (el) el.textContent = countdownSeconds;
+  if (el2) el2.textContent = countdownSeconds;
 
   // Animate SVG ring
   if (ring) {
@@ -97,7 +99,7 @@ function updateCountdown() {
     const progress = countdownSeconds / COUNTDOWN_SEC;
     ring.style.strokeDasharray = `${circumference}`;
     ring.style.strokeDashoffset = `${circumference * (1 - progress)}`;
-    ring.style.stroke = countdownSeconds > 10 ? '#e63946' : '#ff6b6b';
+    ring.style.stroke = countdownSeconds > 5 ? '#e63946' : '#ff6b6b';
   }
 }
 
@@ -115,6 +117,10 @@ function autoCallEmergency() {
   // Show golden hour alert
   document.getElementById('goldenBanner')?.classList.remove('hidden');
 
+  // Log incident for Paramedic Handoff Card
+  logHandoffEvent?.('Crash detected by accelerometer (auto-SOS activated)');
+  logHandoffEvent?.('Emergency call placed automatically');
+
   // Auto-inject message to chat
   appendMsg?.('bot',
     '🚨 **AUTO-SOS ACTIVATED**\n\n' +
@@ -124,6 +130,13 @@ function autoCallEmergency() {
     '3. Do NOT move if injured\n\n' +
     'Help is on the way.'
   );
+
+  // Auto-SOS Night Beacon — activate after sunset
+  activateNightBeaconIfDark?.();
+
+  // Auto-share location with family on auto-SOS
+  const family = loadFamilyContacts?.() || [];
+  if (family.length) sendFamilyAlert?.(family);
 
   // Open emergency call (ambulance)
   const emergencyNum = window.locationInfo?.emergency_numbers?.ambulance || '112';

@@ -21,6 +21,7 @@
     <div id="offlineChip" class="chip chip--offline hidden">📵 Offline</div>
     <div id="triageBadge" class="triage-badge hidden"></div>
     <div id="locationChip" class="chip chip--location">📍 Locating…</div>
+    <button id="navModeBtn" class="nav-mode-btn" onclick="toggleNavMode()" title="Driving mode — highlight blackspots">🧭 Driving Mode</button>
     <button id="crashToggleBtn" class="crash-toggle active" onclick="toggleCrashDetection()" title="Auto-crash detection">🚨 Crash Detect ON</button>
     <button id="sosBtn" class="sos-btn" onclick="triggerSOS()">SOS</button>
   </div>
@@ -64,10 +65,10 @@
           transform="rotate(-90 50 50)"
           style="transition:stroke-dashoffset 1s linear;"/>
       </svg>
-      <div class="countdown-num" id="crashCountdown">30</div>
+      <div class="countdown-num" id="crashCountdown">15</div>
     </div>
 
-    <p class="crash-calling">Calling <strong id="crashCallNum">108</strong> in <span id="crashCountdown2">30</span>s…</p>
+    <p class="crash-calling">Calling <strong id="crashCallNum">108</strong> in <span id="crashCountdown2">15</span>s…</p>
 
     <div class="crash-actions">
       <button class="btn btn--big-safe" onclick="cancelCrash()">✅ I'M OKAY — Cancel</button>
@@ -111,6 +112,79 @@
     <div class="modal-actions" style="margin-top:14px">
       <button class="btn btn--secondary" onclick="closeFamilyModal()">Cancel</button>
       <button class="btn btn--danger" onclick="saveFamilyContacts()">💾 Save & Alert Now</button>
+    </div>
+  </div>
+</div>
+
+<!-- 🩹 PARAMEDIC HANDOFF CARD Modal -->
+<div id="handoffModal" class="modal hidden">
+  <div class="modal-card handoff-card">
+    <div class="modal-header">
+      <span class="modal-icon">🩹</span><h2>Paramedic Handoff</h2>
+      <button class="modal-close" onclick="closeHandoffCard()">✕</button>
+    </div>
+    <p class="modal-sub">Show this card to arriving emergency medical teams.</p>
+    <div class="conscious-state-row">
+      <span class="cs-label">Conscious state:</span>
+      <button class="cs-btn" onclick="setHandoffConscious('Alert & Talking', this)">Alert</button>
+      <button class="cs-btn" onclick="setHandoffConscious('Drowsy / Confused', this)">Drowsy</button>
+      <button class="cs-btn" onclick="setHandoffConscious('Unconscious', this)">Unconscious</button>
+    </div>
+    <div class="handoff-body"></div>
+    <div class="modal-actions">
+      <button class="btn btn--secondary" onclick="resetHandoff()">Clear Log</button>
+      <button class="btn btn--danger" onclick="closeHandoffCard()">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- ☣️ HAZMAT / EV FIRE Override -->
+<div id="hazmatOverride" class="modal hidden">
+  <div class="modal-card hazmat-card">
+    <div class="hazmat-header">
+      <span class="hazmat-icon">☣️</span>
+      <h2>HAZMAT / EV FIRE PROTOCOL</h2>
+    </div>
+    <div class="hazmat-warning">
+      ⚠️ <strong>Explosive thermal runaway or chemical leak risk.</strong>
+    </div>
+    <ol class="hazmat-steps">
+      <li><strong>Move at least 100 meters upwind immediately.</strong></li>
+      <li>Do NOT attempt to extinguish EV battery fires with water.</li>
+      <li>Do NOT inhale fumes — cover nose and mouth.</li>
+      <li>Keep bystanders far back. Block the road if safe to do so.</li>
+      <li>Call fire brigade — specify <em>HAZMAT</em> or <em>EV fire</em>.</li>
+    </ol>
+    <div class="modal-actions">
+      <button class="btn btn--secondary" onclick="closeHazmatOverride()">Acknowledge</button>
+      <a class="btn btn--danger" href="tel:101">📞 Call Fire (101)</a>
+    </div>
+  </div>
+</div>
+
+<!-- 🚌 MASS CASUALTY (MCI) Override -->
+<div id="mciOverride" class="modal hidden">
+  <div class="modal-card mci-card">
+    <div class="mci-header">
+      <span class="mci-icon">🚌</span>
+      <h2>MASS CASUALTY MODE</h2>
+    </div>
+    <div class="mci-warning">
+      Multiple-victim incident detected. Multi-ambulance dispatch flagged.
+    </div>
+    <div class="mci-triage-rule">
+      <strong>Field triage — counterintuitive but lifesaving:</strong>
+    </div>
+    <ol class="mci-steps">
+      <li>🚫 <strong>IGNORE</strong> victims who are screaming or walking — they can wait.</li>
+      <li>🔍 <strong>LOCATE</strong> victims who are silent or breathing heavily — check them first.</li>
+      <li>🩸 Control catastrophic bleeding with direct pressure or improvised tourniquet.</li>
+      <li>🛣 Clear the road if safe — prevent secondary pile-ups.</li>
+      <li>📞 Tell dispatcher: "MCI — multiple victims" so they send more units.</li>
+    </ol>
+    <div class="modal-actions">
+      <button class="btn btn--secondary" onclick="closeMciOverride()">Acknowledge</button>
+      <a class="btn btn--danger" href="tel:108">📞 Call 108</a>
     </div>
   </div>
 </div>
@@ -164,6 +238,8 @@
         <button class="qa-btn qa-red"    onclick="triggerSOS()">🚨 SOS Call</button>
         <button class="qa-btn qa-blue"   onclick="openFirstAid()">🩺 First Aid</button>
         <button class="qa-btn qa-orange" onclick="openFamilyModal()">👨‍👩‍👧 Alert Family</button>
+        <button class="qa-btn qa-purple" onclick="openHandoffCard()">🩹 Handoff Card</button>
+        <button class="qa-btn qa-night"  onclick="activateNightBeacon()">🔦 Night Beacon</button>
         <button class="qa-btn qa-green"  onclick="simulateCrash()">💥 Test Crash</button>
       </div>
     </div>
@@ -261,10 +337,14 @@
   <button onclick="document.getElementById('goldenBanner').classList.add('hidden')">✕</button>
 </div>
 
+<!-- 📡 Geo-Fenced Proximity Alert Banner -->
+<div id="proximityAlert" class="proximity-alert hidden"></div>
+
 <!-- Scripts -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="/js/crash.js"></script>
 <script src="/js/firstaid.js"></script>
+<script src="/js/blueprint.js"></script>
 <script src="/js/app.js"></script>
 </body>
 </html>

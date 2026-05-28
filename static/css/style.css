@@ -693,3 +693,157 @@ html, body { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif; backg
   .map-section { order: 1; height: 50vh; }
   .tagline { display: none; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   BLUEPRINT FEATURES
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── Driving Mode toggle in header ─────────────────────────────── */
+.nav-mode-btn {
+  background: #f5f6fa; color: var(--text);
+  border: 1px solid var(--border); border-radius: 8px;
+  font-size: .75rem; font-weight: 600;
+  padding: 6px 10px; cursor: pointer;
+  white-space: nowrap; transition: all .2s;
+}
+.nav-mode-btn.active {
+  background: var(--blue); color: #fff;
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(69,123,157,.25);
+}
+
+body.nav-mode .map-section { box-shadow: inset 0 0 0 4px var(--blue); }
+
+/* ── Quick action color variants ───────────────────────────────── */
+.qa-btn.qa-purple { background: #6a4c93; color: #fff; }
+.qa-btn.qa-purple:hover { background: #543b75; }
+.qa-btn.qa-night  { background: #1d3557; color: #fff; }
+.qa-btn.qa-night:hover  { background: #122236; }
+
+/* ── 🔦 NIGHT BEACON full-screen strobe ────────────────────────── */
+.night-beacon {
+  position: fixed; inset: 0; z-index: 99999;
+  background: #e63946;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+  animation: beacon-pulse 1s ease-in-out infinite;
+}
+.night-beacon.hidden { display: none; }
+.beacon-content { padding: 40px; }
+.beacon-icon { font-size: 6rem; margin-bottom: 16px; }
+.beacon-title { font-size: 2rem; font-weight: 900; letter-spacing: 2px; margin-bottom: 8px; }
+.beacon-sub { font-size: 1rem; opacity: .85; margin-bottom: 30px; }
+.beacon-stop {
+  background: #fff; color: #e63946;
+  border: none; border-radius: 12px;
+  padding: 14px 32px; font-size: 1.1rem; font-weight: 800;
+  cursor: pointer; letter-spacing: 1px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.3);
+}
+@keyframes beacon-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .85; }
+}
+
+/* ── 🩹 PARAMEDIC HANDOFF CARD ─────────────────────────────────── */
+.handoff-card { max-width: 480px; }
+.conscious-state-row {
+  display: flex; align-items: center; flex-wrap: wrap;
+  gap: 6px; margin: 10px 0 14px;
+}
+.cs-label { font-size: .8rem; font-weight: 600; color: var(--text-sub); margin-right: 4px; }
+.cs-btn {
+  background: #f5f6fa; color: var(--text);
+  border: 1px solid var(--border); border-radius: 16px;
+  padding: 5px 12px; font-size: .78rem; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+}
+.cs-btn:hover { background: #eef9f4; }
+.cs-btn.active { background: var(--green); color: #fff; border-color: var(--green); }
+
+.handoff-card-print {
+  background: #f9fafc; border: 2px dashed #cfd5e1;
+  border-radius: 10px; padding: 14px;
+  font-size: .85rem; max-height: 50vh; overflow-y: auto;
+}
+.ho-row {
+  display: flex; justify-content: space-between;
+  padding: 6px 0; border-bottom: 1px dotted #d6dae3;
+}
+.ho-row:last-child { border-bottom: none; }
+.ho-k { font-weight: 600; color: var(--text-sub); font-size: .78rem; }
+.ho-v { font-weight: 700; color: var(--text); text-align: right; }
+.ho-section {
+  margin: 12px 0 6px; padding-top: 8px;
+  font-weight: 800; font-size: .82rem;
+  color: var(--red); text-transform: uppercase; letter-spacing: .5px;
+  border-top: 1.5px solid #d6dae3;
+}
+.ho-event { font-size: .8rem; line-height: 1.5; padding: 2px 0; }
+.ho-empty { color: var(--text-sub); font-style: italic; }
+
+/* ── ☣️ HAZMAT OVERRIDE ────────────────────────────────────────── */
+.hazmat-card { max-width: 460px; border-top: 6px solid #f4a261; }
+.hazmat-header {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 14px;
+}
+.hazmat-icon { font-size: 2.4rem; }
+.hazmat-card h2 { color: #c0392b; font-size: 1.2rem; margin: 0; }
+.hazmat-warning {
+  background: #fff8e1; border-left: 4px solid #f4a261;
+  padding: 12px; border-radius: 6px; margin-bottom: 14px;
+  font-size: .92rem;
+}
+.hazmat-steps {
+  padding-left: 22px; line-height: 1.7; font-size: .88rem;
+  margin-bottom: 16px;
+}
+.hazmat-steps li { padding: 4px 0; }
+
+/* ── 🚌 MCI OVERRIDE ───────────────────────────────────────────── */
+.mci-card { max-width: 460px; border-top: 6px solid #e63946; }
+.mci-header {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 14px;
+}
+.mci-icon { font-size: 2.4rem; }
+.mci-card h2 { color: #b5000f; font-size: 1.2rem; margin: 0; }
+.mci-warning {
+  background: #fde8ea; border-left: 4px solid #e63946;
+  padding: 10px 12px; border-radius: 6px; margin-bottom: 12px;
+  font-size: .88rem; font-weight: 600;
+}
+.mci-triage-rule {
+  font-size: .92rem; margin-bottom: 8px; color: var(--text);
+}
+.mci-steps {
+  padding-left: 22px; line-height: 1.65; font-size: .86rem;
+  margin-bottom: 16px;
+}
+.mci-steps li { padding: 5px 0; }
+
+/* ── 📡 PROXIMITY ALERT BANNER ─────────────────────────────────── */
+.proximity-alert {
+  position: fixed; top: calc(var(--header-h) + 12px); left: 50%;
+  transform: translateX(-50%); z-index: 9999;
+  background: #fff; border: 2px solid #f4a261;
+  border-radius: 12px; padding: 12px 16px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.18);
+  min-width: 280px; max-width: 92vw;
+  animation: prox-slide .35s ease-out;
+}
+.proximity-alert.hidden { display: none; }
+.prox-icon { font-size: 1.8rem; }
+.prox-body { display: flex; flex-direction: column; flex: 1; }
+.prox-body strong { font-size: .92rem; color: var(--red); }
+.prox-body span { font-size: .78rem; color: var(--text-sub); }
+.proximity-alert button {
+  background: none; border: none; cursor: pointer;
+  font-size: 1.1rem; color: var(--text-sub);
+}
+@keyframes prox-slide {
+  from { opacity: 0; transform: translate(-50%, -20px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
