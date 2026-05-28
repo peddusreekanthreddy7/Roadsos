@@ -53,15 +53,10 @@ html, body { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif; backg
   font-size: .9rem; font-weight: 800;
   padding: 8px 18px; cursor: pointer;
   letter-spacing: 1px;
-  animation: pulse-sos 2s infinite;
-  transition: background .2s;
+  box-shadow: 0 4px 12px rgba(230,57,70,.35);
+  transition: background .15s;
 }
 .sos-btn:hover { background: var(--red-dark); }
-
-@keyframes pulse-sos {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(230,57,70,.5); }
-  50%       { box-shadow: 0 0 0 8px rgba(230,57,70,0); }
-}
 
 /* ── Layout ─────────────────────────────────────────────────────── */
 .layout {
@@ -927,12 +922,8 @@ body.nav-mode .map-section { box-shadow: inset 0 0 0 4px var(--blue); }
   --grad-orange: linear-gradient(135deg, #ffb87a 0%, #d35400 100%);
   --grad-sms:    linear-gradient(135deg, #5dd5b5 0%, #008e7a 100%);
   --grad-bg:     linear-gradient(135deg, #eef1f7 0%, #d9e2ec 50%, #cdd9e8 100%);
-  --shadow-3d:   0 1px 2px rgba(0,0,0,.06),
-                 0 4px 8px rgba(0,0,0,.08),
-                 0 12px 24px rgba(0,0,0,.10);
-  --shadow-3d-hover: 0 2px 4px rgba(0,0,0,.08),
-                     0 8px 16px rgba(0,0,0,.12),
-                     0 20px 40px rgba(0,0,0,.16);
+  --shadow-3d:       0 4px 12px rgba(0,0,0,.10);
+  --shadow-3d-hover: 0 8px 20px rgba(0,0,0,.14);
   --glass-bg:    rgba(255,255,255,0.72);
   --glass-bd:    rgba(255,255,255,0.45);
 }
@@ -960,56 +951,15 @@ html, body {
 }
 .logo-icon { filter: drop-shadow(0 2px 4px rgba(230,57,70,.4)); }
 
-/* Header buttons — 3D depth */
-.sos-btn {
-  background: var(--grad-red);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.4) inset,
-    0 -2px 4px rgba(0,0,0,.15) inset,
-    0 4px 0 #8a0000,
-    0 8px 20px rgba(230,57,70,.4);
-  transform: translateY(0);
-  transition: transform .12s, box-shadow .12s;
-}
-.sos-btn:hover {
-  background: var(--grad-red);
-  transform: translateY(-2px);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.45) inset,
-    0 -2px 4px rgba(0,0,0,.15) inset,
-    0 6px 0 #8a0000,
-    0 12px 28px rgba(230,57,70,.55);
-}
-.sos-btn:active {
-  transform: translateY(3px);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.3) inset,
-    0 -2px 4px rgba(0,0,0,.2) inset,
-    0 1px 0 #8a0000,
-    0 4px 10px rgba(230,57,70,.3);
-}
-
-.crash-toggle, .nav-mode-btn, .help-btn {
-  border-radius: 10px;
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.7) inset,
-    0 2px 4px rgba(0,0,0,.08),
-    0 6px 12px rgba(0,0,0,.06);
-  transition: transform .12s, box-shadow .12s;
-}
-.crash-toggle:hover, .nav-mode-btn:hover, .help-btn:hover {
-  transform: translateY(-1px);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.8) inset,
-    0 4px 8px rgba(0,0,0,.10),
-    0 10px 20px rgba(0,0,0,.10);
-}
+/* Header buttons — simple solid shadows */
 .help-btn {
   background: #fff; border: 1px solid var(--border);
   width: 32px; height: 32px; border-radius: 50%;
   font-size: 1rem; font-weight: 700;
   cursor: pointer; color: var(--blue);
+  box-shadow: 0 2px 6px rgba(0,0,0,.08);
 }
+.help-btn:hover { background: #f5f6fa; }
 
 /* Cards — solid white with 3D layered shadow (NO backdrop blur) */
 .card {
@@ -1032,28 +982,14 @@ html, body {
   color: transparent;
 }
 
-/* Severity buttons — 3D press */
+/* Severity buttons — single shadow, no hover transform */
 .sev-btn, .qa-btn, .filter-chip, .qp-btn, .hz-btn {
   border-radius: 10px;
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.65) inset,
-    0 1px 2px rgba(0,0,0,.06),
-    0 4px 10px rgba(0,0,0,.06);
-  transition: transform .15s cubic-bezier(.34,1.56,.64,1),
-              box-shadow .15s, background .15s;
+  box-shadow: 0 2px 6px rgba(0,0,0,.08);
+  transition: background .15s;
 }
 .sev-btn:hover, .qa-btn:hover, .filter-chip:hover, .qp-btn:hover, .hz-btn:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.7) inset,
-    0 4px 8px rgba(0,0,0,.10),
-    0 10px 20px rgba(0,0,0,.10);
-}
-.sev-btn:active, .qa-btn:active, .filter-chip:active, .qp-btn:active {
-  transform: translateY(1px);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.4) inset,
-    0 1px 2px rgba(0,0,0,.10);
+  box-shadow: 0 3px 8px rgba(0,0,0,.10);
 }
 
 /* Quick-action buttons — 3D gradient pills */
@@ -1077,25 +1013,20 @@ html, body {
 .qa-night  { background: var(--grad-night)  !important; }
 .qa-sms    { background: var(--grad-sms)    !important; }
 
-/* Filter chips with active state pop */
+/* Filter chips with active state */
 .filter-chip.active {
-  background: var(--grad-blue);
+  background: var(--blue);
   color: #fff !important;
   border-color: transparent !important;
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.4) inset,
-    0 4px 10px rgba(69,123,157,.4);
+  box-shadow: 0 2px 6px rgba(69,123,157,.3);
 }
 
-/* Severity active = lifted */
+/* Severity active = solid red */
 .sev-btn.active {
-  background: var(--grad-red);
+  background: var(--red);
   color: #fff !important;
   border-color: transparent !important;
-  transform: translateY(-1px);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.3) inset,
-    0 6px 14px rgba(230,57,70,.4);
+  box-shadow: 0 3px 10px rgba(230,57,70,.35);
 }
 
 /* Map section — inset shadow for depth */
@@ -1260,21 +1191,14 @@ html, body {
 }
 .intro-cta:hover { transform: translateY(-2px) scale(1.03); }
 
-/* Scenario buttons — depth + slide */
+/* Scenario buttons */
 .sc-btn {
-  background: linear-gradient(135deg, #fff 0%, #f5f8ff 100%) !important;
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.8) inset,
-    0 2px 6px rgba(0,0,0,.06),
-    0 6px 14px rgba(0,0,0,.06) !important;
-  transition: transform .2s, box-shadow .2s !important;
+  background: #fff !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,.06) !important;
+  transition: background .15s !important;
 }
 .sc-btn:hover {
-  transform: translateX(4px) translateY(-2px) !important;
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.9) inset,
-    0 4px 10px rgba(0,0,0,.10),
-    0 12px 22px rgba(0,0,0,.12) !important;
+  background: #fafbff !important;
 }
 
 /* Scenario tabs — segmented control look */
