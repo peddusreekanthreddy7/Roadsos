@@ -1,6 +1,6 @@
-/* RoadSoS Service Worker — Offline Support */
+/* RoadSoS Service Worker — Offline-First (low-network resilient) */
 
-const CACHE_NAME = 'roadsos-v8';
+const CACHE_NAME = 'roadsos-v9';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -9,13 +9,21 @@ const STATIC_ASSETS = [
   '/js/crash.js',
   '/js/firstaid.js',
   '/js/blueprint.js',
+  '/js/drive.js',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
 ];
 
-// Tile cache — store last-viewed map tiles
-const TILE_CACHE = 'roadsos-tiles-v1';
-const TILE_MAX = 500;
+// Tile cache — store last-viewed map tiles aggressively (offline maps!)
+const TILE_CACHE  = 'roadsos-tiles-v2';
+const TILE_MAX    = 2000;             // way more for offline coverage
+
+// Routing + geocoding cache (Nominatim + OSRM)
+const ROUTE_CACHE = 'roadsos-routes-v1';
+const ROUTE_MAX   = 200;
+
+// API cache — stale-while-revalidate fallback when network dies
+const API_CACHE = 'roadsos-api-v1';
 
 self.addEventListener('install', evt => {
   evt.waitUntil(
@@ -25,13 +33,10 @@ self.addEventListener('install', evt => {
 });
 
 self.addEventListener('activate', evt => {
+  const keep = new Set([CACHE_NAME, TILE_CACHE, ROUTE_CACHE, API_CACHE]);
   evt.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(
-        keys
-          .filter(k => k !== CACHE_NAME && k !== TILE_CACHE)
-          .map(k => caches.delete(k))
-      )
+      Promise.all(keys.filter(k => !keep.has(k)).map(k => caches.delete(k)))
     )
   );
   self.clients.claim();
@@ -40,20 +45,22 @@ self.addEventListener('activate', evt => {
 self.addEventListener('fetch', evt => {
   const url = new URL(evt.request.url);
 
-  // Map tiles — cache-first
+  // Map tiles — cache-first, store many for offline coverage
   if (url.hostname.includes('tile.openstreetmap.org')) {
-    evt.respondWith(cacheTile(evt.request));
+    evt.respondWith(cacheLimited(TILE_CACHE, evt.request, TILE_MAX));
     return;
   }
 
-  // API calls — network-first, no offline fallback (app.js handles that)
+  // Routing + geocoding — cache-first so offline routes still work
+  if (url.hostname.includes('nominatim.openstreetmap.org') ||
+      url.hostname.includes('router.project-osrm.org')) {
+    evt.respondWith(cacheLimited(ROUTE_CACHE, evt.request, ROUTE_MAX));
+    return;
+  }
+
+  // App API — network-first with cache fallback
   if (url.pathname.startsWith('/api/')) {
-    evt.respondWith(
-      fetch(evt.request).catch(() => new Response(
-        JSON.stringify({ error: 'offline' }),
-        { headers: { 'Content-Type': 'application/json' } }
-      ))
-    );
+    evt.respondWith(networkFirst(API_CACHE, evt.request));
     return;
   }
 
@@ -64,25 +71,44 @@ self.addEventListener('fetch', evt => {
         caches.open(CACHE_NAME).then(c => c.put(evt.request, resp.clone()));
       }
       return resp;
-    }))
+    }).catch(() => cached))
   );
 });
 
-async function cacheTile(request) {
-  const cache = await caches.open(TILE_CACHE);
+/* ── Helpers ────────────────────────────────────────────────────── */
+async function cacheLimited(cacheName, request, max) {
+  const cache = await caches.open(cacheName);
   const cached = await cache.match(request);
-  if (cached) return cached;
-
+  if (cached) {
+    // Refresh in background
+    fetch(request).then(r => { if (r.ok) cache.put(request, r); }).catch(()=>{});
+    return cached;
+  }
   try {
     const resp = await fetch(request);
     if (resp.ok) {
-      // Evict oldest tile if over limit
       const keys = await cache.keys();
-      if (keys.length >= TILE_MAX) await cache.delete(keys[0]);
+      if (keys.length >= max) await cache.delete(keys[0]);
       cache.put(request, resp.clone());
     }
     return resp;
   } catch (e) {
-    return new Response('', { status: 503 });
+    return new Response('', { status: 503, statusText: 'Offline — not cached' });
+  }
+}
+
+async function networkFirst(cacheName, request) {
+  const cache = await caches.open(cacheName);
+  try {
+    const resp = await fetch(request);
+    if (resp.ok && request.method === 'GET') cache.put(request, resp.clone());
+    return resp;
+  } catch (e) {
+    const cached = await cache.match(request);
+    if (cached) return cached;
+    return new Response(
+      JSON.stringify({ error: 'offline', cached: false }),
+      { headers: { 'Content-Type': 'application/json' } }
+    );
   }
 }

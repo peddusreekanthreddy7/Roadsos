@@ -1249,3 +1249,289 @@ html, body {
   .tagline { display: none; }
   .help-btn { display: none; }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   DRIVE MODE — Google-Maps-style navigation-first UI
+   (Trojan Horse approach from Blueprint §2)
+   ════════════════════════════════════════════════════════════════ */
+:root { --header-h: 64px; }
+
+/* Drive-style header — search-first, no panel labels */
+.header--drive {
+  background: #fff;
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; height: var(--header-h);
+  box-shadow: 0 2px 12px rgba(0,0,0,.10);
+  border-bottom: none;
+}
+.menu-btn {
+  width: 40px; height: 40px; padding: 8px;
+  background: none; border: none; cursor: pointer;
+  display: flex; flex-direction: column; justify-content: space-between;
+  flex-shrink: 0;
+}
+.menu-btn span {
+  display: block; height: 3px; width: 100%;
+  background: #1d3557; border-radius: 2px;
+  transition: transform .25s;
+}
+.menu-btn:hover span { background: var(--red); }
+
+.search-wrap {
+  flex: 1; position: relative; max-width: 640px;
+  display: flex; align-items: center;
+  background: #f1f3f6; border-radius: 30px;
+  padding: 0 12px; height: 44px;
+  border: 1px solid transparent;
+  transition: background .15s, border-color .15s, box-shadow .15s;
+}
+.search-wrap:focus-within {
+  background: #fff;
+  border-color: var(--blue);
+  box-shadow: 0 4px 12px rgba(0,0,0,.10);
+}
+.search-ico { color: #6b7280; flex-shrink: 0; font-size: 1.1rem; }
+#searchInput {
+  flex: 1; border: none; background: none; outline: none;
+  padding: 0 10px; font-size: 1rem; color: var(--text);
+}
+.search-clear {
+  background: none; border: none; cursor: pointer;
+  color: #6b7280; font-size: 1rem; padding: 4px 8px;
+  border-radius: 50%;
+}
+.search-clear:hover { background: rgba(0,0,0,.06); }
+
+.header-status {
+  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+}
+
+/* Search results dropdown */
+.search-results {
+  position: fixed;
+  top: calc(var(--header-h) + 4px);
+  left: 60px; right: auto;
+  width: min(640px, calc(100vw - 80px));
+  max-height: 380px; overflow-y: auto;
+  background: #fff; border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0,0,0,.22);
+  z-index: 9000;
+}
+.search-results.hidden { display: none; }
+.sr-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; cursor: pointer;
+  border-bottom: 1px solid #f0f2f5;
+  transition: background .12s;
+}
+.sr-item:hover { background: #f8f9fc; }
+.sr-item:last-child { border-bottom: none; }
+.sr-ico { font-size: 1.3rem; flex-shrink: 0; }
+.sr-body { display: flex; flex-direction: column; gap: 2px; }
+.sr-body strong { font-size: .92rem; }
+.sr-body span { font-size: .76rem; color: var(--text-sub); }
+.sr-loading, .sr-empty { padding: 18px; text-align: center; color: var(--text-sub); font-size: .88rem; }
+
+/* Map takes full screen */
+.layout {
+  grid-template-columns: 1fr;
+  position: relative;
+}
+.map-section {
+  position: absolute; inset: 0;
+  z-index: 1;
+}
+
+/* Panels become drawer overlays */
+.panel--left.drawer {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 340px; max-width: 90vw;
+  background: var(--bg);
+  z-index: 5000;
+  transform: translateX(-100%);
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
+  box-shadow: 4px 0 24px rgba(0,0,0,.18);
+  overflow-y: auto;
+  padding: 0 12px 16px;
+  margin-top: 0;
+  max-height: 100vh;
+}
+body.drawer-open .panel--left.drawer { transform: translateX(0); }
+
+.drawer-header {
+  position: sticky; top: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 4px; margin-bottom: 8px;
+  background: var(--bg); z-index: 2;
+  border-bottom: 1px solid var(--border);
+}
+.drawer-close {
+  background: none; border: none; cursor: pointer;
+  font-size: 1.2rem; color: var(--text-sub);
+  width: 32px; height: 32px; border-radius: 50%;
+}
+.drawer-close:hover { background: rgba(0,0,0,.06); color: var(--red); }
+
+.drawer-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.32);
+  z-index: 4999;
+  opacity: 0; pointer-events: none;
+  transition: opacity .25s;
+}
+body.drawer-open .drawer-overlay { opacity: 1; pointer-events: auto; }
+
+/* Right chat panel — collapse to floating */
+.panel--right {
+  position: fixed;
+  top: var(--header-h); right: 0; bottom: 0;
+  width: 360px; max-width: 92vw;
+  background: var(--bg);
+  z-index: 4000;
+  transform: translateX(100%);
+  transition: transform .28s cubic-bezier(.4,0,.2,1);
+  box-shadow: -4px 0 24px rgba(0,0,0,.18);
+  border-left: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 12px;
+  margin-top: 0;
+  max-height: calc(100vh - var(--header-h));
+}
+.panel--right.chat-open { transform: translateX(0); }
+
+/* Floating action buttons */
+.fab-sos {
+  position: fixed;
+  right: 18px; bottom: 18px;
+  width: 72px; height: 72px;
+  background: var(--red);
+  color: #fff; border: none; border-radius: 50%;
+  font-weight: 900; font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(230,57,70,.5);
+  z-index: 3500;
+  display: flex; align-items: center; justify-content: center;
+  letter-spacing: 1px;
+}
+.fab-sos:hover { background: var(--red-dark); transform: scale(1.05); }
+.fab-sos .fab-sos-ring {
+  position: absolute; inset: -6px;
+  border: 3px solid rgba(230,57,70,.4);
+  border-radius: 50%;
+  animation: fab-sos-ring 2.4s ease-out infinite;
+  pointer-events: none;
+}
+@keyframes fab-sos-ring {
+  0%   { transform: scale(.95); opacity: .9; }
+  100% { transform: scale(1.25); opacity: 0; }
+}
+
+.fab-chat {
+  position: fixed;
+  right: 18px; bottom: 100px;
+  width: 52px; height: 52px;
+  background: #1d3557; color: #fff;
+  border: none; border-radius: 50%;
+  font-size: 1.4rem; cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,.25);
+  z-index: 3400;
+}
+.fab-chat:hover { background: #0f1e36; transform: scale(1.06); }
+
+/* Route info bottom card */
+.route-info {
+  position: fixed;
+  left: 50%; transform: translateX(-50%);
+  bottom: 18px;
+  width: min(560px, calc(100vw - 36px));
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.22);
+  padding: 14px 16px;
+  z-index: 3000;
+}
+.route-info.hidden { display: none; }
+.ri-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.ri-stats { display: flex; flex-direction: column; gap: 2px; }
+.ri-time { font-size: 1.4rem; font-weight: 800; color: var(--green); }
+.ri-dist { font-size: .8rem; color: var(--text-sub); }
+.ri-dest { font-size: .85rem; color: var(--text); margin-top: 2px; }
+.ri-actions { display: flex; align-items: center; gap: 8px; }
+.ri-start {
+  background: var(--red); color: #fff; border: none;
+  font-weight: 800; padding: 12px 24px; border-radius: 12px;
+  font-size: 1rem; cursor: pointer;
+  box-shadow: 0 3px 10px rgba(230,57,70,.35);
+}
+.ri-start:hover { background: var(--red-dark); }
+.ri-clear {
+  background: #f1f3f6; color: var(--text); border: none;
+  width: 40px; height: 40px; border-radius: 50%;
+  font-size: 1rem; cursor: pointer;
+}
+.ri-clear:hover { background: #e0e3eb; }
+
+/* Turn-by-turn top banner (while navigating) */
+.nav-turn {
+  position: fixed;
+  top: calc(var(--header-h) + 8px);
+  left: 12px; right: 12px;
+  background: linear-gradient(135deg, #1d3557 0%, #0a1628 100%);
+  color: #fff;
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 14px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.30);
+  z-index: 3200;
+}
+.nav-turn.hidden { display: none; }
+.nt-arrow { font-size: 2.2rem; flex-shrink: 0; }
+.nt-body { flex: 1; }
+.nt-instr { font-size: 1.05rem; font-weight: 700; }
+.nt-meta  { font-size: .78rem; opacity: .85; margin-top: 2px; }
+.nt-stop {
+  background: rgba(255,255,255,.15); color: #fff;
+  border: none; border-radius: 50%;
+  width: 36px; height: 36px; font-size: 1rem; cursor: pointer;
+}
+.nt-stop:hover { background: rgba(255,255,255,.28); }
+
+/* While navigating, hide header search */
+body.navigating .header { display: none; }
+body.navigating .map-section { top: 0; }
+
+/* Destination pin */
+.dest-pin {
+  font-size: 2.2rem;
+  filter: drop-shadow(0 3px 6px rgba(0,0,0,.4));
+  animation: pin-drop .4s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes pin-drop {
+  from { transform: translateY(-12px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+/* Locate / refresh / report buttons — move to left side, smaller */
+.map-overlay {
+  bottom: 100px; right: 14px;
+  z-index: 2500;
+}
+
+/* Hide the right-panel chat by default on desktop too */
+@media (min-width: 701px) {
+  .layout { grid-template-rows: 1fr; }
+}
+
+/* Mobile responsive — keep nav app feel */
+@media (max-width: 700px) {
+  .header--drive { padding: 6px 8px; gap: 6px; }
+  .header-status { display: none; }
+  .search-results { left: 8px; right: 8px; width: auto; }
+  .panel--left.drawer { width: 92vw; }
+  .panel--right { width: 100vw; max-width: 100vw; }
+  .fab-sos { width: 64px; height: 64px; right: 14px; bottom: 14px; }
+  .fab-chat { right: 14px; bottom: 88px; }
+  .nav-turn { top: 4px; left: 4px; right: 4px; padding: 10px 12px; }
+  .route-info { left: 8px; right: 8px; transform: none; width: auto; bottom: 86px; }
+}

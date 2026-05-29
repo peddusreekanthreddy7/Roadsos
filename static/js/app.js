@@ -615,8 +615,14 @@ function showToast(msg) {
 }
 
 // ── Offline ───────────────────────────────────────────────────────
-window.addEventListener('online',  ()=>document.getElementById('offlineChip').classList.add('hidden'));
-window.addEventListener('offline', ()=>document.getElementById('offlineChip').classList.remove('hidden'));
+function setOnlineState() {
+  const chip = document.getElementById('offlineChip');
+  if (navigator.onLine) chip?.classList.add('hidden');
+  else                   chip?.classList.remove('hidden');
+}
+window.addEventListener('online',  setOnlineState);
+window.addEventListener('offline', setOnlineState);
+window.addEventListener('DOMContentLoaded', setOnlineState);
 
 // ── Service Worker ────────────────────────────────────────────────
 if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').catch(()=>{});}
