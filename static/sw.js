@@ -1,15 +1,20 @@
 /* RoadSoS Service Worker — Offline-First (low-network resilient) */
 
-const CACHE_NAME = 'roadsos-v9';
+const CACHE_NAME = 'roadsos-v10';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
+  '/manifest.json',
   '/css/style.css',
   '/js/app.js',
   '/js/crash.js',
   '/js/firstaid.js',
   '/js/blueprint.js',
   '/js/drive.js',
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+  '/icons/favicon.png',
+  '/icons/apple-touch-icon.png',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
 ];

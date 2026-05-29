@@ -302,3 +302,41 @@ function toggleDrawer() {
 function closeDrawer() {
   document.body.classList.remove('drawer-open');
 }
+
+/* ── PWA Install prompt (Android/Chrome) ─────────────────────────── */
+let _installPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  _installPrompt = e;
+  // Show our custom install banner unless user dismissed it before
+  if (!localStorage.getItem('roadsos_install_dismissed')) {
+    document.getElementById('installBanner')?.classList.remove('hidden');
+  }
+});
+function installPwa() {
+  if (!_installPrompt) {
+    showToast?.('Tap the browser menu → "Install app" or "Add to Home screen"');
+    return;
+  }
+  _installPrompt.prompt();
+  _installPrompt.userChoice.then((choice) => {
+    if (choice.outcome === 'accepted') {
+      showToast?.('🎉 Installing RoadSoS...');
+      document.getElementById('installBanner')?.classList.add('hidden');
+    }
+    _installPrompt = null;
+  });
+}
+function dismissInstall() {
+  localStorage.setItem('roadsos_install_dismissed', '1');
+  document.getElementById('installBanner')?.classList.add('hidden');
+}
+
+// Listen for ?action=sos / ?action=drive / ?action=firstaid (PWA shortcuts)
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(location.search);
+  const action = params.get('action');
+  if (action === 'sos')      setTimeout(() => triggerSOS?.(), 600);
+  if (action === 'firstaid') setTimeout(() => openFirstAid?.(), 600);
+  if (action === 'drive')    setTimeout(() => document.getElementById('searchInput')?.focus(), 400);
+});

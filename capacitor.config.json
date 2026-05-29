@@ -1,0 +1,32 @@
+{
+  "appId": "in.roadsos.app",
+  "appName": "RoadSoS",
+  "webDir": "static",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "launchAutoHide": true,
+      "backgroundColor": "#e63946",
+      "showSpinner": false,
+      "androidSpinnerStyle": "small"
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#e63946",
+      "overlaysWebView": false
+    },
+    "Geolocation": {
+      "permissions": ["coarseLocation", "fineLocation", "backgroundLocation"]
+    }
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true
+  }
+}

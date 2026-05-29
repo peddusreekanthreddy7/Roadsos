@@ -4,8 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <meta name="theme-color" content="#e63946" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="RoadSoS" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <title>RoadSoS — Emergency Road Safety</title>
   <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="/css/style.css" />
 </head>
@@ -39,6 +45,17 @@
 
 <!-- Turn-by-turn driving instruction -->
 <div id="navTurn" class="nav-turn hidden"></div>
+
+<!-- 📲 PWA install banner (Android Chrome) -->
+<div id="installBanner" class="install-banner hidden">
+  <span class="ib-ico">📲</span>
+  <div class="ib-body">
+    <strong>Install RoadSoS as an App</strong>
+    <span>Add to home screen — works offline, gets notifications.</span>
+  </div>
+  <button class="ib-btn" onclick="installPwa()">Install</button>
+  <button class="ib-dismiss" onclick="dismissInstall()" aria-label="Dismiss">✕</button>
+</div>
 
 <!-- Floating SOS button (always visible, huge target in crash) -->
 <button class="fab-sos" onclick="triggerSOS()" title="Emergency SOS">

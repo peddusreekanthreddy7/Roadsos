@@ -1501,6 +1501,44 @@ body.drawer-open .drawer-overlay { opacity: 1; pointer-events: auto; }
 body.navigating .header { display: none; }
 body.navigating .map-section { top: 0; }
 
+/* 📲 PWA install banner */
+.install-banner {
+  position: fixed;
+  top: calc(var(--header-h) + 8px);
+  left: 50%; transform: translateX(-50%);
+  width: min(520px, calc(100vw - 24px));
+  background: linear-gradient(135deg, #1d3557 0%, #0a1628 100%);
+  color: #fff; padding: 12px 14px;
+  border-radius: 14px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: 0 8px 22px rgba(0,0,0,.28);
+  z-index: 3300;
+  animation: ib-drop .4s cubic-bezier(.34,1.56,.64,1);
+}
+.install-banner.hidden { display: none; }
+.ib-ico { font-size: 1.8rem; flex-shrink: 0; }
+.ib-body { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.ib-body strong { font-size: .95rem; }
+.ib-body span { font-size: .76rem; opacity: .85; }
+.ib-btn {
+  background: var(--red); color: #fff;
+  border: none; border-radius: 22px;
+  padding: 8px 18px; font-weight: 800; font-size: .85rem;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(230,57,70,.4);
+}
+.ib-btn:hover { background: var(--red-dark); }
+.ib-dismiss {
+  background: none; border: none; color: #fff;
+  font-size: 1.1rem; cursor: pointer; padding: 4px 8px;
+  opacity: .7;
+}
+.ib-dismiss:hover { opacity: 1; }
+@keyframes ib-drop {
+  from { opacity: 0; transform: translate(-50%, -20px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
 /* Destination pin */
 .dest-pin {
   font-size: 2.2rem;
